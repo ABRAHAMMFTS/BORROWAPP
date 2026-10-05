@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../models/usuario.dart';
 import '../theme/app_theme.dart';
@@ -38,6 +39,12 @@ class OrganizacionCreadaScreen extends StatelessWidget {
                   'Código generado:',
                   style: TextStyle(color: Colors.white70),
                 ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Ahora eres administrador de esta organización.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white),
+                ),
                 const SizedBox(height: 24),
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -62,38 +69,49 @@ class OrganizacionCreadaScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        side: const BorderSide(color: Colors.white),
-                      ),
-                      icon: const Icon(Icons.copy),
-                      label: const Text('Copiar'),
-                      onPressed: () => ScaffoldMessenger.of(context)
-                          .showSnackBar(
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          side: const BorderSide(color: Colors.white),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                        ),
+                        icon: const Icon(Icons.copy),
+                        label: const Text('Copiar'),
+                        onPressed: () async {
+                          await Clipboard.setData(
+                            ClipboardData(text: organizacion.codigo),
+                          );
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
                                 'Código ${organizacion.codigo} copiado.',
                               ),
                             ),
-                          ),
+                          );
+                        },
+                      ),
                     ),
                     const SizedBox(width: 16),
-                    OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        side: const BorderSide(color: Colors.white),
-                      ),
-                      icon: const Icon(Icons.share),
-                      label: const Text('Compartir'),
-                      onPressed: () => ScaffoldMessenger.of(context)
-                          .showSnackBar(
-                            const SnackBar(
-                              content: Text('Código listo para compartir.'),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          side: const BorderSide(color: Colors.white),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                        ),
+                        icon: const Icon(Icons.share),
+                        label: const Text('Compartir'),
+                        onPressed: () => ScaffoldMessenger.of(context)
+                            .showSnackBar(
+                              const SnackBar(
+                                content: Text('Código listo para compartir.'),
+                              ),
                             ),
-                          ),
+                      ),
                     ),
                   ],
                 ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../services/servicios.dart';
 import '../theme/app_theme.dart';
 import 'sin_organizacion_screen.dart';
@@ -46,6 +47,14 @@ class _RegistroScreenState extends State<RegistroScreen> {
   }
 
   @override
+  void dispose() {
+    _nombreCtrl.dispose();
+    _correoCtrl.dispose();
+    _passCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -78,7 +87,10 @@ class _RegistroScreenState extends State<RegistroScreen> {
               if (_error != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: Text(_error!, style: const TextStyle(color: BColors.error)),
+                  child: Text(
+                    _error!,
+                    style: const TextStyle(color: BColors.error),
+                  ),
                 ),
               TextField(
                 controller: _nombreCtrl,
@@ -118,7 +130,10 @@ class _RegistroScreenState extends State<RegistroScreen> {
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
-                  suffixIcon: const Icon(Icons.visibility_off, color: BColors.tinta3),
+                  suffixIcon: const Icon(
+                    Icons.visibility_off,
+                    color: BColors.tinta3,
+                  ),
                 ),
               ),
               const Spacer(),
@@ -128,9 +143,9 @@ class _RegistroScreenState extends State<RegistroScreen> {
                 child: _cargando
                     ? const Center(child: CircularProgressIndicator())
                     : ElevatedButton(
-                  onPressed: _registrar,
-                  child: const Text('Crear cuenta'),
-                ),
+                        onPressed: _registrar,
+                        child: const Text('Crear cuenta'),
+                      ),
               ),
             ],
           ),
