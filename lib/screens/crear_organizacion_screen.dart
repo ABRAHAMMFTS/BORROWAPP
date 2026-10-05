@@ -26,7 +26,22 @@ class _CrearOrganizacionScreenState extends State<CrearOrganizacionScreen> {
 
   Future<void> _crear() async {
     final usuario = Servicios.i.sesion.usuario;
-    if (usuario == null) return;
+    if (usuario == null) {
+      setState(
+        () => _error =
+            'Tu sesión no está disponible. Regresa e inicia sesión nuevamente.',
+      );
+      return;
+    }
+    final nombre = _nombreCtrl.text.trim();
+    final identificador = _identificadorCtrl.text.trim();
+    final puntoCentral = _puntoCentralCtrl.text.trim();
+    if (nombre.isEmpty || identificador.isEmpty || puntoCentral.isEmpty) {
+      setState(
+        () => _error = 'Completa el nombre, el identificador interno y el punto de entrega.',
+      );
+      return;
+    }
     setState(() {
       _cargando = true;
       _error = null;
@@ -40,12 +55,18 @@ class _CrearOrganizacionScreenState extends State<CrearOrganizacionScreen> {
       };
       final organizacion = await Servicios.i.organizaciones.crear(
         usuarioId: usuario.id,
-        nombre: _nombreCtrl.text,
+        nombre: nombre,
         tipo: tipo,
-        puntoCentral: _puntoCentralCtrl.text,
-        identificadorInterno: _identificadorCtrl.text,
+        puntoCentral: puntoCentral,
+        identificadorInterno: identificador,
       );
       await Servicios.i.sesion.recargar(activarOrganizacionId: organizacion.id);
+      if (Servicios.i.sesion.organizacionActiva?.id != organizacion.id ||
+          !Servicios.i.sesion.esAdminActivo) {
+        throw StateError(
+          'La organización se creó, pero no se pudo activar la sesión administrativa.',
+        );
+      }
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
