@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import 'inicio_screen.dart';
 
-// P14: Préstamo activo (Stepper)
+// P14: Préstamo activo con pasos de seguimiento.
 class PrestamoActivoScreen extends StatelessWidget {
   const PrestamoActivoScreen({super.key});
 
@@ -27,7 +27,7 @@ class PrestamoActivoScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Stepper simplificado
+            // Indicador simplificado del avance del préstamo.
             Container(
               color: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 24),

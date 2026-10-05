@@ -41,7 +41,7 @@ class BColors {
   static const infoFondo = Color(0xFFE0E9FF);
 }
 
-/// Degradado "Marea": uno de los 4 usos permitidos (bienvenida, hero del
+/// Degradado "Marea": uno de los 4 usos permitidos (bienvenida, tarjeta principal del
 /// inicio, pantallas de éxito y tarjeta del panel de administración).
 const marea = LinearGradient(
   begin: Alignment(-0.34, -0.94),

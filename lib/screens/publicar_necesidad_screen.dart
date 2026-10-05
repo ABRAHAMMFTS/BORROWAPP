@@ -1,22 +1,50 @@
 import 'package:flutter/material.dart';
+
 import '../services/servicios.dart';
 import '../theme/app_theme.dart';
 
-// P09: Publicar necesidad
+// P09: Formulario para publicar una necesidad.
 class PublicarNecesidadScreen extends StatefulWidget {
   const PublicarNecesidadScreen({super.key});
 
   @override
-  State<PublicarNecesidadScreen> createState() => _PublicarNecesidadScreenState();
+  State<PublicarNecesidadScreen> createState() =>
+      _PublicarNecesidadScreenState();
 }
 
 class _PublicarNecesidadScreenState extends State<PublicarNecesidadScreen> {
   final _objeto = TextEditingController();
   final _descripcion = TextEditingController();
-  final DateTime _inicio = DateTime.now().add(const Duration(days: 1));
-  final DateTime _fin = DateTime.now().add(const Duration(days: 3));
+  DateTime _inicio = DateTime.now().add(const Duration(days: 1));
+  DateTime _fin = DateTime.now().add(const Duration(days: 3));
   bool _cargando = false;
   String? _error;
+
+  String _fecha(DateTime fecha) =>
+      '${fecha.day.toString().padLeft(2, '0')}/${fecha.month.toString().padLeft(2, '0')}/${fecha.year}';
+
+  Future<void> _seleccionarFecha({required bool inicio}) async {
+    // El calendario evita fechas escritas con formatos inválidos.
+    final actual = inicio ? _inicio : _fin;
+    final fecha = await showDatePicker(
+      context: context,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 730)),
+      initialDate: actual.isBefore(DateTime.now()) ? DateTime.now() : actual,
+      helpText: inicio
+          ? 'Selecciona la fecha de inicio'
+          : 'Selecciona la fecha de fin',
+    );
+    if (fecha == null || !mounted) return;
+    setState(() {
+      if (inicio) {
+        _inicio = fecha;
+        if (_fin.isBefore(fecha)) _fin = fecha;
+      } else {
+        _fin = fecha;
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -33,6 +61,7 @@ class _PublicarNecesidadScreenState extends State<PublicarNecesidadScreen> {
       _cargando = true;
       _error = null;
     });
+    // La publicación se guarda mediante el servicio, no solo en la pantalla.
     try {
       await Servicios.i.necesidades.publicar(
         solicitanteId: usuario.id,
@@ -75,7 +104,10 @@ class _PublicarNecesidadScreenState extends State<PublicarNecesidadScreen> {
                   hintText: 'Ej. Calculadora científica',
                   filled: true,
                   fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -87,7 +119,10 @@ class _PublicarNecesidadScreenState extends State<PublicarNecesidadScreen> {
                   hintText: 'Para qué lo necesitas...',
                   filled: true,
                   fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -95,11 +130,17 @@ class _PublicarNecesidadScreenState extends State<PublicarNecesidadScreen> {
                 children: [
                   Expanded(
                     child: TextField(
+                      readOnly: true,
+                      onTap: () => _seleccionarFecha(inicio: true),
                       decoration: InputDecoration(
                         labelText: 'Fecha inicio',
+                        hintText: _fecha(_inicio),
                         filled: true,
                         fillColor: Colors.white,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
                         suffixIcon: const Icon(Icons.calendar_today),
                       ),
                     ),
@@ -107,11 +148,17 @@ class _PublicarNecesidadScreenState extends State<PublicarNecesidadScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: TextField(
+                      readOnly: true,
+                      onTap: () => _seleccionarFecha(inicio: false),
                       decoration: InputDecoration(
                         labelText: 'Fecha fin',
+                        hintText: _fecha(_fin),
                         filled: true,
                         fillColor: Colors.white,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
                         suffixIcon: const Icon(Icons.calendar_today),
                       ),
                     ),

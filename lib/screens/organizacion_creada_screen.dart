@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/usuario.dart';
 import '../theme/app_theme.dart';
 import 'inicio_screen.dart';
@@ -26,20 +27,37 @@ class OrganizacionCreadaScreen extends StatelessWidget {
                 const SizedBox(height: 24),
                 const Text(
                   '¡Organización creada!',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
                 const SizedBox(height: 8),
-                const Text('Código generado:', style: TextStyle(color: Colors.white70)),
+                const Text(
+                  'Código generado:',
+                  style: TextStyle(color: Colors.white70),
+                ),
                 const SizedBox(height: 24),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 16,
+                  ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.14), // Vidrio
+                    color: Colors.white.withValues(
+                      alpha: 0.14,
+                    ), // Efecto de vidrio.
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
                     organizacion.codigo.split('').join(' '),
-                    style: TextStyle(fontSize: 32, letterSpacing: 8, fontWeight: FontWeight.bold, color: Colors.white),
+                    style: TextStyle(
+                      fontSize: 32,
+                      letterSpacing: 8,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -47,21 +65,35 @@ class OrganizacionCreadaScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: const BorderSide(color: Colors.white),
+                      ),
                       icon: const Icon(Icons.copy),
                       label: const Text('Copiar'),
-                      onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Código ${organizacion.codigo} copiado.')),
-                      ),
+                      onPressed: () => ScaffoldMessenger.of(context)
+                          .showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Código ${organizacion.codigo} copiado.',
+                              ),
+                            ),
+                          ),
                     ),
                     const SizedBox(width: 16),
                     OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: const BorderSide(color: Colors.white),
+                      ),
                       icon: const Icon(Icons.share),
                       label: const Text('Compartir'),
-                      onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Código listo para compartir.')),
-                      ),
+                      onPressed: () => ScaffoldMessenger.of(context)
+                          .showSnackBar(
+                            const SnackBar(
+                              content: Text('Código listo para compartir.'),
+                            ),
+                          ),
                     ),
                   ],
                 ),
@@ -69,11 +101,16 @@ class OrganizacionCreadaScreen extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: BColors.sol400, foregroundColor: BColors.solTexto),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: BColors.sol400,
+                      foregroundColor: BColors.solTexto,
+                    ),
                     onPressed: () {
                       Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (context) => const InicioScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => const InicioScreen(),
+                        ),
                         (route) => false,
                       );
                     },
