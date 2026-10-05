@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>BorrowApp - Préstamo Activo</title>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            app: {
+              bg: '#F8FAFC',
+              teal: '#0F766E',
+              'teal-dark': '#115E59',
+              'teal-light': '#CCFBF1',
+              amber: '#F59E0B',
+              'amber-light': '#FEF3C7',
+              emerald: '#10B981',
+              'emerald-light': '#D1FAE5',
+              card: '#FFFFFF',
+              border: '#E2E8F0',
+              text: '#0F172A',
+              muted: '#64748B'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Custom Core Styles -->
+<style data-purpose="base-styles">
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background-color: #E2E8F0;
+      -webkit-font-smoothing: antialiased;
+      margin: 0;
+      padding: 0;
+    }
+    /* Hide default tap highlights on iOS */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+  </style>
+<style data-purpose="animations">
+    @keyframes pulse-ring {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+      }
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+      }
+    }
+    .active-step-badge {
+      animation: pulse-ring 2s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-0 sm:p-4">
+<!-- BEGIN: MobileDeviceFrame -->
+<main class="w-full max-w-[390px] min-h-screen bg-[#F8FAFC] shadow-2xl flex flex-col justify-between relative overflow-hidden text-slate-800 antialiased border-x border-slate-200" data-purpose="screen-container">
+<!-- BEGIN: TopBar -->
+<header class="bg-white border-b border-slate-100 pt-12 pb-3 px-4 flex items-center justify-between sticky top-0 z-30" data-purpose="navigation-header">
+<div class="flex items-center space-x-3">
+<!-- Back Button -->
+<button aria-label="Volver atrás" class="w-9 h-9 flex items-center justify-center rounded-full text-slate-600 hover:bg-slate-100 active:scale-95 transition-all" type="button">
+<svg class="w-5 h-5 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<!-- Screen Title -->
+<div>
+<h1 class="text-base font-bold text-slate-900 leading-tight">Préstamo (Activo)</h1>
+<p class="text-[11px] font-medium text-slate-500">ID: #PR-2026-0842</p>
+</div>
+</div>
+<!-- Status Badge -->
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80">
+        En curso
+      </span>
+</header>
+<!-- END: TopBar -->
+<!-- Scrollable Content Area -->
+<div class="flex-1 overflow-y-auto px-4 py-4 space-y-4" data-purpose="content-body">
+<!-- BEGIN: StepperSection -->
+<section class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs" data-purpose="stepper-card">
+<h2 class="sr-only">Estado del Préstamo</h2>
+<!-- 5-Step Stepper Track -->
+<div class="relative flex items-center justify-between px-1">
+<!-- Background Track Line -->
+<div aria-hidden="true" class="absolute left-4 right-4 top-3.5 h-[2px] bg-slate-200 -translate-y-1/2 z-0">
+<!-- Filled Track up to Step 3 (50%) -->
+<div class="h-full bg-emerald-500 w-[50%]"></div>
+</div>
+<!-- Step 1: Confirmado (Done) -->
+<div class="relative z-10 flex flex-col items-center group">
+<div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+<svg class="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4.5 12.75l6 6 9-13.5" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<span class="text-[10px] font-semibold text-slate-700 mt-1.5 text-center">Confirmado</span>
+</div>
+<!-- Step 2: Entrega (Done) -->
+<div class="relative z-10 flex flex-col items-center group">
+<div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+<svg class="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4.5 12.75l6 6 9-13.5" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<span class="text-[10px] font-semibold text-slate-700 mt-1.5 text-center">Entrega</span>
+</div>
+<!-- Step 3: Activo (Active Highlighted) -->
+<div class="relative z-10 flex flex-col items-center group">
+<div class="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center ring-4 ring-emerald-100 active-step-badge">
+<span class="w-2.5 h-2.5 rounded-full bg-white"></span>
+</div>
+<span class="text-[10px] font-bold text-emerald-800 mt-1.5 text-center">Activo</span>
+</div>
+<!-- Step 4: Devolución (Pending) -->
+<div class="relative z-10 flex flex-col items-center group">
+<div class="w-7 h-7 rounded-full bg-white border-2 border-slate-300 text-slate-400 flex items-center justify-center">
+<span class="text-[10px] font-semibold">4</span>
+</div>
+<span class="text-[10px] font-medium text-slate-400 mt-1.5 text-center">Devolución</span>
+</div>
+<!-- Step 5: Finalizado (Inactive) -->
+<div class="relative z-10 flex flex-col items-center group">
+<div class="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 text-slate-300 flex items-center justify-center">
+<span class="text-[10px] font-semibold">5</span>
+</div>
+<span class="text-[10px] font-medium text-slate-400 mt-1.5 text-center">Finalizado</span>
+</div>
+</div>
+</section>
+<!-- END: StepperSection -->
+<!-- BEGIN: LoanInfoCard -->
+<section class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs" data-purpose="loan-details">
+<!-- Object Header -->
+<div class="flex items-start gap-3.5 pb-3.5 border-b border-slate-100">
+<div class="w-12 h-12 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center text-teal-700 flex-shrink-0">
+<!-- Icon for Laptop Charger / Electronic Device -->
+<svg class="w-6 h-6 stroke-[1.8]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div class="flex-1 min-w-0">
+<span class="text-[11px] font-bold tracking-wide uppercase text-teal-700 bg-teal-50 px-2 py-0.5 rounded">Objeto en préstamo</span>
+<h2 class="text-base font-bold text-slate-900 truncate mt-0.5">Cargador de portátil USB-C 65W</h2>
+<p class="text-xs text-slate-500 mt-0.5">Modalidad: <span class="font-semibold text-slate-700">Préstamo gratuito</span></p>
+</div>
+</div>
+<!-- Participants Meta -->
+<div class="grid grid-cols-2 gap-3 py-3 border-b border-slate-100 text-xs">
+<div>
+<span class="text-slate-400 font-medium block mb-1">Solicitante</span>
+<div class="flex items-center space-x-2">
+<div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-600 text-[10px]">
+                CJ
+              </div>
+<span class="font-semibold text-slate-800 truncate">Camilo Junco</span>
+</div>
+</div>
+<div>
+<span class="text-slate-400 font-medium block mb-1">Prestador</span>
+<div class="flex items-center space-x-2">
+<div class="w-6 h-6 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-[10px]">
+                JV
+              </div>
+<span class="font-semibold text-slate-800 truncate">Jesús Vergara</span>
+</div>
+</div>
+</div>
+<!-- Schedule / Date Details -->
+<div class="pt-3 flex items-center justify-between text-xs">
+<div class="flex items-center text-slate-600 space-x-1.5">
+<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Límite de devolución:</span>
+</div>
+<span class="font-bold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-md">Hoy, 5:00 PM</span>
+</div>
+</section>
+<!-- END: LoanInfoCard -->
+<!-- BEGIN: CentralPointCard -->
+<section class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs" data-purpose="pickup-point-details">
+<div class="flex items-start space-x-3">
+<div class="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+<!-- Pin Location Icon -->
+<svg class="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div>
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Punto Central Oficial</span>
+<p class="text-sm font-semibold text-slate-800 leading-snug mt-0.5">Biblioteca Central, mostrador de atención</p>
+<p class="text-xs text-slate-500 mt-1">Campus Tecnológico de Bolívar (UTB)</p>
+</div>
+</div>
+</section>
+<!-- END: CentralPointCard -->
+<!-- BEGIN: ConfirmationStatusCard -->
+<section class="bg-amber-50/60 border border-amber-200/70 rounded-2xl p-4 space-y-3" data-purpose="return-confirmations">
+<div class="flex items-center justify-between">
+<h3 class="text-xs font-bold text-amber-950 uppercase tracking-wide flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            Confirmaciones de devolución
+          </h3>
+<span class="text-[11px] font-medium text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded">0 de 2 listas</span>
+</div>
+<div class="space-y-2 text-xs">
+<!-- Solicitante Pending -->
+<div class="flex items-center justify-between bg-white/90 p-2.5 rounded-xl border border-amber-100">
+<div class="flex items-center space-x-2">
+<span class="text-amber-500 text-sm">⏳</span>
+<span class="font-medium text-slate-700">Solicitante (Camilo)</span>
+</div>
+<span class="text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/50">Pendiente entrega</span>
+</div>
+<!-- Prestador Pending -->
+<div class="flex items-center justify-between bg-white/90 p-2.5 rounded-xl border border-amber-100">
+<div class="flex items-center space-x-2">
+<span class="text-amber-500 text-sm">⏳</span>
+<span class="font-medium text-slate-700">Prestador (Jesús)</span>
+</div>
+<span class="text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/50">Pendiente recepción</span>
+</div>
+</div>
+<!-- Mutual Confirmation Requirement Notice -->
+<p class="text-[11px] text-amber-900 leading-relaxed font-normal pt-1">
+<span class="font-bold">Aviso:</span> Ambas partes deben confirmar en persona en el Punto Central para finalizar el ciclo de préstamo con éxito.
+        </p>
+</section>
+<!-- END: ConfirmationStatusCard -->
+</div>
+<!-- END: Content Area -->
+<!-- BEGIN: ActionFooter -->
+<footer class="bg-white border-t border-slate-100 p-4 pb-6 space-y-3" data-purpose="actions-footer">
+<!-- Main Action Button -->
+<button class="w-full py-3.5 px-4 bg-teal-700 hover:bg-teal-800 active:bg-teal-900 text-white font-bold text-sm rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 active:scale-[0.99]" type="button">
+<svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4.5 12.75l6 6 9-13.5" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Marcar como devuelto</span>
+</button>
+<!-- Secondary Subtle Action: Report Issue -->
+<div class="flex justify-center">
+<button class="inline-flex items-center space-x-1.5 text-xs font-semibold text-slate-500 hover:text-red-600 transition-colors py-1 px-2 rounded focus:outline-none" type="button">
+<svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-red-500" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Reportar un problema</span>
+</button>
+</div>
+</footer>
+<!-- END: ActionFooter -->
+</main>
+<!-- END: MobileDeviceFrame -->
+</body></html>

@@ -1,0 +1,1314 @@
+DESARROLLO DE SOFTWARE
+
+
+Especificación de Requisitos
+de Software (SRS)
+
+BORROWAPP
+Plataforma de préstamo y alquiler de objetos entre comunidades
+
+
+ Nombre del proyecto                 BORROWAPP
+
+ Equipo                              Jesús Vergara, Camilo Junco y Abraham Márquez
+
+ Materia                             Desarrollo de Software
+
+ Docente                             Prof. Marco Almanza Ibarra
+
+ Fecha                               04/10/2026
+
+ Versión                             2.0 (reemplaza la versión 1.0 del 17/08/2026)
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                   Página 1 de 33
+Contenido
+1 Introducción
+      1.1 Propósito
+      1.2 Alcance del producto
+      1.3 Definiciones, acrónimos y abreviaturas
+      1.4 Referencias
+      1.5 Cómo está organizado este documento
+      1.6 Datos de ejemplo
+
+2 Descripción general
+      2.1 Perspectiva del producto
+      2.2 Modelo de organizaciones y pertenencia múltiple
+      2.3 Funciones principales
+      2.4 Características de los usuarios
+      2.5 Restricciones
+      2.6 Suposiciones y dependencias
+      2.7 Flujo completo del proceso
+
+3 Requisitos específicos
+      3.1 Requisitos funcionales
+      3.2 Requisitos no funcionales
+      3.3 Máquinas de estado
+      3.4 Reglas de negocio
+      3.5 Interfaces externas
+
+4 Modelo de datos
+      4.1 Diagrama entidad-relación
+      4.2 Descripción de cada entidad
+      4.3 Reglas de integridad
+
+5 Apéndices
+      A. Pantallas del prototipo
+      B. Ejemplo completo paso a paso
+      C. Qué pantalla cubre cada requisito
+      D. Qué cambió frente a la versión 1.0
+      E. Puntos que el equipo debe decidir
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0   Página 2 de 33
+1 Introducción
+
+1.1 Propósito
+Este documento explica qué hace BORROWAPP y cómo lo hace. BORROWAPP es una aplicación móvil
+donde las personas de una comunidad cerrada (una universidad, una empresa o un conjunto residencial)
+piden objetos prestados o alquilados a sus propios compañeros o vecinos.
+
+El documento define los requisitos funcionales y no funcionales del sistema. Sirve de base para diseñar,
+programar y probar la aplicación, y está escrito para el equipo de desarrollo y para el docente que
+evalúa el curso. La idea es que cualquier persona que lo lea entienda el comportamiento completo de la
+app sin tener que preguntarle nada al equipo.
+
+
+1.2 Alcance del Producto
+La aplicación cubre el recorrido completo de un préstamo: alguien publica lo que necesita, otro
+miembro ofrece el objeto, el solicitante acepta, se hace la entrega, se usa el objeto, se devuelve y todo
+queda guardado en el historial.
+
+Un ejemplo corto: Camilo necesita un taladro por tres días. Lo publica en la app. Jesús, que tiene uno,
+responde con sus condiciones: lo alquila a $10.000 por día. Camilo acepta, se encuentran en la
+Biblioteca Central, los dos confirman la entrega en la app, y tres días después hacen lo mismo con la
+devolución. Camilo le paga a Jesús en persona.
+
+Lo que la app no hace: no mueve dinero y no entrega objetos. Solo organiza y registra el proceso. La
+entrega, la devolución y el pago pasan en persona, en el punto central que define cada organización.
+Esta versión no incluye:
+   • Pagos, tarjetas o billeteras digitales dentro de la aplicación.
+   • Chat interno, videollamadas ni mensajería.
+   • Mapas, GPS ni seguimiento en tiempo real. El punto central se muestra solo como texto.
+   • Códigos QR.
+   • Domicilios ni repartidores.
+   • Recomendaciones ni clasificación automática con inteligencia artificial.
+   • Verificación de identidad con documentos oficiales.
+   • Fotos de los objetos. Cada objeto se representa con un ícono de categoría.
+   • Calificaciones con estrellas, sistema de reputación, multas automáticas o depósitos de garantía.
+
+1.3 Definiciones, Acrónimos y Abreviaturas
+Estos términos se usan siempre con el mismo significado en todo el documento.
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                             Página 3 de 33
+ Término                          Definición
+
+ Organización                     Comunidad cerrada (universidad, empresa o conjunto residencial) cuyos miembros
+                                  pueden interactuar entre sí dentro de la app. Funciona parecido a una clase de
+                                  Google Classroom: se crea una vez y los demás entran con un código.
+
+ Código de acceso                 Código de 5 caracteres (letras mayúsculas y números, por ejemplo K7Q4X) que el
+                                  sistema genera al crear una organización. Quien lo ingresa puede unirse a ella.
+
+ Membresía                        La relación entre un usuario y una organización. Guarda el rol, el estado y el
+                                  identificador interno del usuario en esa organización. Un usuario tiene una
+                                  membresía por cada organización a la que pertenece.
+
+ Organización activa              La organización que el usuario está viendo en este momento. Todo lo que aparece
+                                  en pantalla (necesidades, préstamos, historial) corresponde a ella. Se cambia
+                                  desde la píldora que está arriba en las pantallas principales.
+
+ Identificador interno            Código del usuario dentro de una organización: código estudiantil (universidad),
+                                  código de empleado (empresa) o número de apartamento (conjunto residencial).
+                                  Es un texto libre, la app no lo valida con ningún sistema externo.
+
+ Usuario o miembro                Persona registrada en la app que pertenece al menos a una organización.
+
+ Administrador                    El usuario que creó una organización. En esa organización tiene un panel extra
+                                  para atender reportes y aplicar sanciones. En las demás organizaciones donde
+                                  esté, es un miembro normal.
+
+ Solicitante                      Papel de un usuario en una operación concreta: quien publicó la necesidad y
+                                  recibe el objeto.
+
+ Prestador                        Papel de un usuario en una operación concreta: quien ofrece el objeto. Una misma
+                                  persona puede ser solicitante en una operación y prestador en otra.
+
+ Necesidad                        Publicación de un solicitante que dice qué objeto necesita, para qué fechas y con
+                                  qué descripción.
+
+ Oferta                           Respuesta de un miembro a una necesidad. Incluye las condiciones que define el
+                                  prestador: gratis o alquiler, precio, unidad de cobro y fecha y hora de entrega.
+
+ Modalidad                        Puede ser Gratis (préstamo sin costo, total $0) o Alquiler (con precio por hora o
+                                  por día).
+
+ Préstamo                         Acuerdo que nace cuando el solicitante acepta una oferta. Guarda el objeto, las
+                                  dos partes, las fechas, la modalidad, el precio total, el punto central y el estado.
+
+ Punto central                    Lugar de cada organización donde se hacen todas las entregas y devoluciones, por
+                                  ejemplo "Biblioteca Central, mostrador de atención".
+
+ Confirmación                     Marca que hace cada parte en la app para decir que ya cumplió su paso (entregué,
+                                  recibí, devolví). Para avanzar de estado se necesitan las dos.
+
+ Reporte                          Aviso que una de las partes envía al administrador cuando hay un problema con
+                                  un préstamo: objeto no devuelto, objeto dañado o inasistencia de la otra parte.
+
+ Sanción                          Decisión del administrador sobre un reporte: advertencia, suspensión temporal o
+                                  baneo permanente. Solo afecta la organización donde ocurrió el problema.
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                            Página 4 de 33
+ Término                          Definición
+
+ En conflicto                     Marca que se pone sobre un préstamo mientras hay un reporte pendiente. No
+                                  cambia el estado real del préstamo.
+
+ API REST                         Interfaz por la que la app móvil le pide y le envía datos al servidor, usando HTTP y
+                                  JSON.
+
+ MVP                              Producto mínimo viable. Primera versión con el flujo completo funcionando y sin
+                                  las características opcionales.
+
+ SRS                              Especificación de Requisitos de Software. Es este documento.
+
+
+1.4 Referencias
+   • Documento de definición del proyecto "Plataforma de Préstamo y Alquiler de Objetos entre
+     Comunidades" (especificación inicial, agosto de 2026).
+   • SRS de BORROWAPP, versión 1.0, del 17/08/2026. Este documento lo reemplaza.
+   • Prototipo de pantallas de BORROWAPP (archivo BorrowApp.pptx), con 16 pantallas diseñadas.
+   • Material de la asignatura Desarrollo de Software sobre elicitación y estructura de documentos
+     SRS.
+   • Plantilla y ejemplo de SRS (UniCafé) entregados en el curso.
+
+1.5 Cómo está organizado este documento
+Si no sabes por dónde empezar, esta tabla dice dónde buscar cada cosa.
+
+ Si quieres saber...                            Lee...
+
+ Cómo funciona la app de principio a            Sección 2.7 (flujo completo) y Apéndice B (ejemplo paso a paso)
+ fin
+
+ Cómo funcionan las organizaciones y            Sección 2.2
+ por qué un usuario puede estar en
+ varias
+
+ Qué debe hacer exactamente el                  Sección 3.1 (requisitos funcionales) y 3.2 (no funcionales)
+ sistema
+
+ Qué estados tiene cada cosa y cómo             Sección 3.3 (diagramas de estados)
+ cambian
+
+ Las reglas del negocio en lenguaje             Sección 3.4
+ sencillo
+
+ Qué datos guarda el sistema                    Sección 4 (modelo de datos)
+
+ Cómo se ve la app                              Apéndice A (pantallas) y Apéndice C (qué pantalla cubre cada
+                                                requisito)
+
+ Qué cambió frente a la versión 1.0 y           Apéndices D y E
+ qué falta decidir
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                            Página 5 de 33
+1.6 Datos de ejemplo que se usan en todo el documento
+Para que los ejemplos sean fáciles de seguir, todo el documento usa las mismas personas y
+organizaciones.
+
+ Dato                            Organización 1                       Organización 2
+
+ Nombre                          Universidad Tecnológica de Bolívar   Torres del Parque
+
+ Tipo                            Universidad                          Conjunto residencial
+
+ Código de acceso                K7Q4X                                M2X9P
+
+ Rol de Jesús Vergara            Administrador                        Miembro
+
+ Identificador de Jesús          Código estudiantil T00061234         Apto 502
+
+ Punto central                   Biblioteca Central, mostrador de     Portería principal
+                                 atención
+
+
+Otros miembros: Camilo Junco, Abraham Márquez y Laura Gómez. Objetos de ejemplo: calculadora
+científica, taladro, cargador de portátil, proyector y bicicleta. Precios de ejemplo: $3.000 por hora,
+$10.000 por día, y $0 cuando es gratis.
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                              Página 6 de 33
+2 Descripción General
+
+2.1 Perspectiva del Producto
+BORROWAPP es un producto nuevo; no reemplaza ningún sistema existente. Es una aplicación móvil
+construida en Flutter que se comunica mediante una API REST propia con una base de datos PostgreSQL.
+No se integra con los sistemas internos de cada organización (por ejemplo, no valida contra el sistema
+académico de una universidad ni contra el sistema de nómina de una empresa): el vínculo de un usuario
+con su organización se resuelve por completo dentro de la propia app, mediante el código de acceso de
+5 caracteres que el sistema genera al crear cada organización.
+
+Quien crea una organización construye, en la práctica, una red cerrada de préstamo entre las personas
+de su comunidad: queda automáticamente como su administrador y recibe el código que debe
+compartir con los demás para que se unan.
+
+2.2 Modelo de Organizaciones y Pertenencia Múltiple
+Este es el punto que más se amplía respecto a la versión 1.0, porque de él depende buena parte de los
+demás requisitos. Un usuario de BORROWAPP no pertenece a una sola comunidad: puede unirse a
+tantas organizaciones como quiera (por ejemplo, su universidad y el conjunto residencial donde vive), y
+dentro de cada una tiene una condición propia e independiente de las demás.
+
+Las reglas exactas son:
+   • La relación entre un usuario y una organización se llama Membresía. Un usuario tiene
+     exactamente una membresía por organización a la que pertenece, y puede tener varias
+     membresías simultáneas (una por organización).
+   • Cada membresía guarda su propio rol (Administrador o Miembro), su propio estado (Activo,
+     Advertido, Suspendido o Baneado) y su propio identificador interno (código estudiantil, código de
+     empleado o número de apartamento, según el tipo de organización). Ninguno de estos tres datos
+     se comparte entre organizaciones.
+   • El rol de Administrador lo tiene únicamente quien creó la organización, y solo dentro de ella. En
+     cualquier otra organización a la que ese mismo usuario se una después, su rol es Miembro. Este
+     MVP no contempla transferir la administración ni nombrar administradores adicionales.
+   • La "organización activa" es el filtro que decide qué ve el usuario en pantalla en cada momento
+     (necesidades, ofertas, préstamos e historial). Es un dato de la sesión del usuario, no de su cuenta:
+     cambiarla no modifica ninguna membresía.
+   • Una sanción o una suspensión aplicada en una organización nunca afecta las membresías del
+     usuario en las demás.
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                            Página 7 de 33
+                                Figura 1. Un mismo usuario con dos membresías independientes.
+
+
+2.3 Funciones Principales del Producto
+   • Registro e inicio de sesión de usuarios.
+   • Creación de una organización (con generación automática de su código de acceso de 5 caracteres)
+     y unión a una organización existente mediante ese código.
+   • Cambio de la organización activa, para usuarios con más de una membresía.
+   • Publicación y consulta de necesidades de objetos dentro de la organización activa.
+   • Creación de ofertas de préstamo gratuito o alquiler en respuesta a una necesidad, y aceptación o
+     rechazo de esas ofertas por parte de quien la publicó.
+   • Gestión del préstamo resultante: confirmación cruzada de entrega y de devolución, hasta su
+     finalización.
+   • Historial y estadísticas básicas de la actividad del usuario, diferenciando su papel como solicitante
+     o como prestador.
+   • Reporte de problemas sobre un préstamo y, para el administrador de la organización
+     correspondiente, un panel para atenderlos y aplicar sanciones.
+
+2.4 Características de los Usuarios
+El rol que aparece en esta tabla es el de la membresía, no el de la cuenta: un mismo usuario puede
+leerse en la fila "Usuario" en una organización y en la fila "Administrador" en otra.
+
+ Tipo de
+                      Descripción                                       Permisos / Funciones
+ Usuario
+
+ Usuario              Miembro de una organización, identificado         Registrarse; crear o unirse a organizaciones;
+ (Miembro)            por su correo y por su identificador interno      publicar y consultar necesidades; responder
+                      en esa organización (código estudiantil,          necesidades de otros con una oferta; aceptar
+                      código de empleado o número de                    o rechazar ofertas recibidas; confirmar
+                      apartamento, según el tipo). Puede actuar         entregas y devoluciones; reportar problemas;
+                      como solicitante o como prestador                 consultar su historial y sus estadísticas;
+                      dependiendo de la operación, y puede tener        cambiar su organización activa.
+                      membresías así en varias organizaciones a la
+                      vez.
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                         Página 8 de 33
+ Tipo de
+                      Descripción                                    Permisos / Funciones
+ Usuario
+
+ Administrador        Usuario que creó una organización. Dentro      Todo lo de un Usuario, más: consultar los
+                      de ella conserva además todos los permisos     miembros, las publicaciones y los préstamos
+                      de un Usuario normal; en cualquier otra        de la organización que administra; atender los
+                      organización a la que pertenezca, su rol es    reportes de problemas; aplicar y revertir
+                      Miembro.                                       sanciones; modificar el punto central de
+                                                                     entrega y devolución.
+
+
+2.5 Restricciones
+   • La aplicación móvil se desarrollará en Flutter y Dart.
+   • El backend se construirá como una API REST propia.
+   • La base de datos será PostgreSQL.
+   • El código de acceso de una organización tiene exactamente 5 caracteres alfanuméricos en
+     mayúsculas, se genera automáticamente y debe ser único en todo el sistema.
+   • El proyecto debe completarse aproximadamente en 14 semanas.
+   • No se incluirá pasarela de pagos ni manejo de dinero dentro de la aplicación.
+   • No se utilizarán mapas, GPS ni códigos QR en esta versión.
+   • El presupuesto de hosting está limitado a servicios gratuitos o de bajo costo (Railway, Render,
+     Vercel).
+
+2.6 Suposiciones y Dependencias
+   • Se asume que los usuarios cuentan con un smartphone y acceso a Internet.
+   • Se asume que cada organización define y mantiene actualizado su punto central de entrega y
+     devolución.
+   • Se asume que los usuarios cumplen entre ellos los acuerdos de entrega, devolución y pago, sin
+     intervención de la aplicación.
+   • El sistema depende de que el administrador de cada organización comunique correctamente el
+     código de acceso a sus miembros.
+   • Se asume que los objetos se prestan y se reciben en buenas condiciones.
+   • Se asume que no hay organizaciones o comunidades duplicadas.
+   • Se asume que cada organización tiene un único administrador, que es quien la creó; este MVP no
+     contempla transferir ni compartir ese rol.
+   • Se asume que un usuario puede pertenecer a cualquier número de organizaciones, sin un límite
+     definido en este MVP.
+   • Se asume que el identificador interno (código estudiantil, de empleado o de apartamento) es un
+     campo de texto libre: la aplicación no lo valida contra un sistema externo de la organización.
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                      Página 9 de 33
+2.7 Flujo Completo del Proceso
+La figura 2 muestra, de principio a fin, el recorrido de una necesidad hasta quedar registrada en el
+historial de ambos usuarios, incluyendo la rama de reporte de un problema. Los números de requisito
+(RF-0xx) referenciados en el texto se detallan en la sección 3.1.
+
+
+
+
+                                Figura 2. Flujo de extremo a extremo: de la necesidad al historial.
+
+Lectura del flujo, paso a paso:
+   • Un usuario publica una necesidad indicando el objeto, una descripción y las fechas en que lo
+     requiere (RF-006). Queda visible solo para los miembros de su organización activa (RF-007), con
+     estado Buscando prestador.
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                    Página 10 de 33
+   • Cualquier otro miembro de esa misma organización que tenga el objeto puede responder tocando
+     "Tengo este objeto". Es en ese momento, y no antes, cuando se definen las condiciones del
+     préstamo: si es gratis o de alquiler, y si es alquiler, el precio, la unidad de cobro (hora o día) y la
+     fecha y hora en que puede entregarlo (RF-008). Esto crea una oferta en estado Pendiente.
+   • Pueden existir varias ofertas pendientes para la misma necesidad, una por cada miembro que
+     respondió. El solicitante las revisa y decide, oferta por oferta, aceptar o rechazar (RF-010).
+     Rechazar una oferta no cierra la necesidad: las demás siguen abiertas y cualquier otro miembro
+     puede seguir ofreciendo mientras la necesidad esté en Buscando prestador.
+   • Al aceptar una oferta, el sistema cierra automáticamente todas las demás ofertas pendientes de
+     esa necesidad (RF-010) y crea el préstamo correspondiente, en estado Confirmado, con el objeto,
+     las dos partes, las fechas, el precio total y el punto central de la organización (RF-011). La
+     necesidad pasa a Con préstamo confirmado.
+   • La entrega ocurre en persona, en el punto central. El préstamo solo avanza a Activo cuando las dos
+     partes la confirmaron desde la aplicación: primero el prestador marca "Entregado", y luego el
+     solicitante confirma "Recibido" (RF-012). En cuanto el prestador marca Entregado, el préstamo se
+     muestra en Entrega pendiente hasta que el solicitante confirme.
+   • La devolución sigue la misma lógica en sentido inverso: el solicitante marca "Devuelto" y el
+     prestador confirma la recepción. Solo con ambas confirmaciones el préstamo pasa a Finalizado
+     (RF-013), y la necesidad se cierra.
+   • Si en cualquier punto entre Confirmado y Devolución pendiente una de las partes reporta un
+     problema (objeto no devuelto, objeto dañado o inasistencia de la otra parte), el préstamo se
+     marca En conflicto mientras el administrador de la organización lo revisa (RF-014). Esta marca no
+     borra el progreso del préstamo: por debajo, el préstamo conserva su estado real y, una vez
+     resuelto el reporte, continúa su flujo normal hasta Finalizado (RF-018). La sección 3.3 detalla esta
+     máquina de estados.
+   • Toda la operación —necesidad, oferta y préstamo— queda disponible después en el historial de
+     ambos usuarios, marcando el papel de cada uno como solicitante o como prestador (RF-015).
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                             Página 11 de 33
+3 Requisitos Específicos
+
+3.1 Requisitos Funcionales
+Frente a la versión 1.0 se reescribieron los requisitos RF-001, RF-003, RF-004, RF-005, RF-006, RF-007,
+RF-008, RF-010, RF-014, RF-016, RF-017 y RF-018 para reflejar el modelo de organizaciones múltiples y la
+forma real en que funcionan las ofertas; RF-019 y RF-020 son nuevos. Los demás se mantienen igual. El
+detalle de cada cambio está en el Apéndice D.
+
+ ● Alta · imprescindible                    ● Media · importante                  ● Baja · deseable
+
+
+
+ ID         Nombre                   Descripción                                                          Prioridad
+
+ RF-001     Registro de              El sistema debe permitir a una persona registrarse con nombre
+            usuario                  completo, correo electrónico único y una contraseña de mínimo           ● Alta
+                                     8 caracteres.
+
+ RF-002     Inicio de sesión         El sistema debe autenticar al usuario mediante correo y
+                                                                                                             ● Alta
+                                     contraseña, y mantener la sesión activa mediante un token.
+
+ RF-003     Creación de              El sistema debe permitir a un usuario crear una organización
+            organización             indicando nombre, tipo (universidad, empresa o conjunto
+                                     residencial), punto central de entrega y su propio identificador
+                                     interno. El sistema debe generar automáticamente un código de           ● Alta
+                                     acceso de 5 caracteres alfanuméricos en mayúsculas, único en
+                                     todo el sistema, y asignar al creador como administrador
+                                     mediante una nueva membresía.
+
+ RF-004     Unión a                  El sistema debe permitir a un usuario ingresar el código de
+            organización             acceso de 5 caracteres de una organización para solicitar una
+            mediante código          membresía en ella, indicando su identificador interno (código
+                                     estudiantil, de empleado o número de apartamento, según el              ● Alta
+                                     tipo). Si el código no corresponde a ninguna organización, el
+                                     sistema debe rechazar la operación e indicarlo. Un usuario puede
+                                     tener membresías simultáneas en varias organizaciones.
+
+ RF-005     Restricción de           El sistema debe restringir la consulta de necesidades, la creación
+            interacciones por        de ofertas y la participación en préstamos únicamente a usuarios
+            organización             con una membresía activa en la misma organización donde                 ● Alta
+                                     ocurre la operación, es decir, en la organización activa del
+                                     usuario.
+
+ RF-006     Publicación de           El sistema debe permitir a un usuario publicar una necesidad en
+            necesidad                su organización activa, indicando el objeto requerido, una
+                                                                                                             ● Alta
+                                     descripción, la fecha de inicio y la fecha de finalización. La
+                                     necesidad debe crearse con estado BUSCANDO_PRESTADOR.
+
+ RF-007     Consulta de              El sistema debe mostrar al usuario la lista de necesidades
+            necesidades              publicadas por miembros de su organización activa, incluyendo           ● Alta
+                                     objeto, fechas y estado.
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                        Página 12 de 33
+ ID         Nombre                   Descripción                                                            Prioridad
+
+ RF-008     Creación de oferta       El sistema debe permitir a cualquier miembro de la organización,
+                                     distinto del solicitante, responder a una necesidad mediante la
+                                     acción "Tengo este objeto", definiendo él mismo las condiciones
+                                     de su oferta: la modalidad (préstamo gratuito o alquiler) y,              ● Alta
+                                     cuando es alquiler, el precio, la unidad de cobro (hora o día) y la
+                                     fecha y hora en que puede entregar el objeto. La oferta se crea
+                                     en estado PENDIENTE.
+
+ RF-009     Cálculo del precio       Si la modalidad es alquiler, el sistema debe calcular el valor total
+            del préstamo             multiplicando el precio por la duración acordada en horas o en
+                                                                                                             ● Media
+                                     días. Si la modalidad es préstamo gratuito, el total debe
+                                     registrarse en $0.
+
+ RF-010     Aceptación o             El sistema debe permitir al usuario que publicó la necesidad
+            rechazo de ofertas       consultar las ofertas recibidas y aceptar o rechazar cada una. Al
+                                     aceptar una oferta, las demás ofertas pendientes de esa misma
+                                                                                                               ● Alta
+                                     necesidad deben pasar automáticamente a CERRADA. Rechazar
+                                     una oferta no cierra la necesidad ni afecta a las demás ofertas
+                                     pendientes.
+
+ RF-011     Creación y gestión       Al aceptarse una oferta, el sistema debe crear un préstamo con el
+            del préstamo             objeto, el prestador, el solicitante, las fechas, la modalidad, el
+                                                                                                               ● Alta
+                                     precio, el punto central de la organización y el estado
+                                     CONFIRMADO.
+
+ RF-012     Confirmación de          El sistema debe permitir al prestador marcar el objeto como
+            entrega y                entregado y al solicitante confirmar la recepción. El préstamo
+                                                                                                               ● Alta
+            recepción                debe pasar a estado ACTIVO únicamente cuando ambas
+                                     confirmaciones se hayan registrado.
+
+ RF-013     Confirmación de          El sistema debe permitir al solicitante marcar el objeto como
+            devolución               devuelto y al prestador confirmar la devolución. El préstamo
+                                                                                                               ● Alta
+                                     debe pasar a estado FINALIZADO únicamente cuando ambas
+                                     confirmaciones se hayan registrado.
+
+ RF-014     Reporte de               El sistema debe permitir a cualquiera de las dos partes de un
+            problemas                préstamo reportar un problema (objeto no devuelto, objeto
+                                     dañado o inasistencia de la otra parte). El reporte debe                ● Media
+                                     notificarse al panel de reportes del administrador de la
+                                     organización donde ocurre el préstamo.
+
+ RF-015     Historial de             El sistema debe mostrar al usuario su historial de necesidades,
+            operaciones              ofertas y préstamos, diferenciando su papel como solicitante o          ● Media
+                                     como prestador en cada uno.
+
+ RF-016     Panel de                 El sistema debe permitir al administrador consultar los
+            administración           miembros, las publicaciones y los préstamos de la organización
+                                                                                                             ● Media
+                                     que administra, atender los reportes de problemas y modificar el
+                                     punto central de entrega.
+
+ RF-017     Aplicación de            El sistema debe permitir al administrador, al revisar un reporte,
+            sanciones por el         aplicar una de las siguientes sanciones al usuario reportado
+                                                                                                               ● Alta
+            administrador            dentro de esa organización: advertencia, suspensión temporal
+                                     (con fecha de finalización) o baneo permanente. Al aplicarla, el
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                          Página 13 de 33
+ ID         Nombre                   Descripción                                                           Prioridad
+
+                                     sistema debe actualizar el estado de la membresía
+                                     correspondiente (ADVERTIDO, SUSPENDIDO o BANEADO),
+                                     registrar el reporte como RESUELTO, y guardar el administrador
+                                     que decidió, la fecha y una nota de resolución. El administrador
+                                     debe poder revertir manualmente una sanción, devolviendo la
+                                     membresía al estado ACTIVO.
+
+ RF-018     Restricciones a          El sistema debe impedir que un usuario con membresía
+            usuarios                 SUSPENDIDA o BANEADA en una organización publique nuevas
+            sancionados              necesidades, cree nuevas ofertas o acepte ofertas recibidas en
+                                     esa organización, mostrando un mensaje con el motivo del
+                                     bloqueo. Los préstamos que el usuario tuviera activos antes de la        ● Alta
+                                     sanción deben continuar su flujo normal hasta finalizar, sin verse
+                                     afectados retroactivamente. Al vencer una suspensión temporal,
+                                     el sistema debe restituir automáticamente el estado ACTIVO de
+                                     la membresía.
+
+ RF-019     Cambio de                El sistema debe permitir a un usuario con más de una membresía
+            organización             elegir cuál de sus organizaciones es la activa. Las pantallas de
+            activa                   necesidades, ofertas, préstamos e historial deben reflejar
+                                                                                                            ● Media
+                                     únicamente los datos de la organización activa. Cambiarla no
+                                     debe alterar el rol, el estado ni el identificador interno de
+                                     ninguna membresía.
+
+ RF-020     Cancelación de           El sistema debe permitir al solicitante cancelar una necesidad
+            necesidad                mientras esté en estado BUSCANDO_PRESTADOR y no tenga
+                                     ninguna oferta aceptada. Al cancelarla, la necesidad debe pasar a
+                                     CERRADA y todas sus ofertas pendientes deben pasar                     ● Media
+                                     automáticamente a CERRADA. Una necesidad en estado
+                                     CON_PRESTAMO_CONFIRMADO no puede cancelarse por esta
+                                     vía.
+
+
+3.2 Requisitos No Funcionales
+ ID         Categoría            Descripción                                                              Prioridad
+
+  RNF-      Rendimiento          El registro de una necesidad, una oferta o una confirmación de
+  001                            préstamo debe completarse en menos de 5 segundos en una                     ● Alta
+                                 conexión móvil estándar.
+
+  RNF-      Seguridad            Las contraseñas deben almacenarse con hash (bcrypt o equivalente)
+  002                            y toda comunicación entre la aplicación y la API debe realizarse            ● Alta
+                                 mediante HTTPS.
+
+  RNF-      Disponibilidad       La aplicación debe mantenerse disponible y responder
+  003                            correctamente cuando varios usuarios realicen operaciones en               ● Media
+                                 simultáneo dentro de la misma organización.
+
+  RNF-      Usabilidad           Un usuario nuevo debe poder publicar su primera necesidad o
+  004                            registrar su primera oferta en menos de 3 minutos sin ayuda                 ● Alta
+                                 externa.
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                         Página 14 de 33
+ ID         Categoría            Descripción                                                           Prioridad
+
+  RNF-      Escalabilidad        La arquitectura debe permitir agregar nuevas organizaciones, y que
+  005                            un usuario se una a varias, sin cambios en el modelo de datos ni en      ● Baja
+                                 la lógica de negocio existente.
+
+  RNF-      Mantenibilidad       El código del backend debe organizarse de manera que facilite su
+                                                                                                          ● Alta
+  006                            mantenimiento y su extensión futura.
+
+  RNF-      Consistencia         Las transiciones de estado de necesidades, ofertas y préstamos
+  007       de datos             deben ser atómicas: nunca deben quedar dos ofertas de una misma
+                                 necesidad en estado ACEPTADA al mismo tiempo, ni un préstamo             ● Alta
+                                 debe avanzar de estado sin que las confirmaciones exigidas se
+                                 hayan registrado por completo.
+
+
+3.3 Máquinas de Estado
+Esta sección es el esquema visual central del documento: muestra, sin ambigüedad, cómo cambia cada
+entidad de estado y qué acción dispara cada cambio. Ningún estado de la lista puede alcanzarse por una
+vía distinta a las que muestran estos diagramas.
+
+3.3.1 Necesidad y Oferta
+Una Necesidad nace en BUSCANDO_PRESTADOR y solo tiene dos salidas: que una de sus ofertas sea
+aceptada (pasa a CON_PRESTAMO_CONFIRMADO y, al finalizar el préstamo, a CERRADA), o que el
+propio solicitante la cancele sin haber aceptado ninguna oferta (RF-020). Cada Oferta individual es
+independiente: queda PENDIENTE hasta que el solicitante la acepta o la rechaza, o hasta que se cierra
+automáticamente porque otra oferta de la misma necesidad fue aceptada.
+
+
+
+
+                                Figura 3. Estados de la Necesidad (arriba) y de la Oferta (abajo).
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                      Página 15 de 33
+3.3.2 Préstamo
+El préstamo avanza en una sola dirección, un paso a la vez, y cada paso exige la confirmación de una
+persona distinta a la que dio el paso anterior. "En conflicto" no es un estado más de esta cadena: es una
+marca que se superpone a uno cualquiera de los cuatro estados intermedios mientras un reporte está
+pendiente, y que desaparece —devolviendo el préstamo a su estado real— cuando el administrador lo
+resuelve (RF-014, RF-017, RF-018).
+
+
+
+
+                                          Figura 4. Máquina de estados del Préstamo.
+
+3.3.3 Usuario dentro de una organización (sanciones)
+El estado de un usuario (Activo, Advertido, Suspendido o Baneado) pertenece a su membresía, no a su
+cuenta: la figura 5 describe las transiciones dentro de una sola organización. El mismo usuario tiene, en
+paralelo, una cadena de estados igual de independiente en cada otra organización a la que pertenezca
+(RF-017, RF-018).
+
+
+
+
+                             Figura 5. Estados de la membresía de un usuario en una organización.
+
+
+3.4 Reglas de Negocio Explícitas
+Esta lista reúne, en un solo lugar y sin tecnicismos, las reglas que gobiernan el comportamiento del
+sistema y que están repartidas en los requisitos anteriores. Su propósito es que una persona que lea
+solo esta sección entienda el comportamiento completo de la aplicación sin ambigüedad.
+
+   • Un usuario puede tener varias membresías, una por organización; su rol, su estado y su
+     identificador interno son independientes en cada una.
+   • El código de una organización tiene siempre 5 caracteres alfanuméricos en mayúsculas y es único
+     en todo el sistema.
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                  Página 16 de 33
+   • Solo el creador de una organización es su administrador; no existe transferencia ni asignación de
+     administradores adicionales en este MVP.
+   • Cualquier miembro activo puede publicar necesidades y también responder a las de otros: ser
+     solicitante o ser prestador son papeles de cada operación, no roles fijos de la cuenta.
+   • Es el prestador —nunca el solicitante— quien define las condiciones de una oferta: modalidad,
+     precio, unidad de cobro y fecha de entrega.
+   • Al aceptar una oferta, todas las demás ofertas pendientes de esa misma necesidad pasan a
+     Cerrada automáticamente; no es necesario rechazarlas una por una.
+   • Un préstamo nunca avanza de estado sin las dos confirmaciones correspondientes: en la entrega,
+     la del prestador y la del solicitante; en la devolución, la del solicitante y la del prestador.
+   • "En conflicto" es una marca visual superpuesta mientras un reporte está Pendiente; no sustituye
+     ni borra el estado real del préstamo, que se retoma tal como estaba al resolver el reporte.
+   • Las sanciones (Advertido, Suspendido, Baneado), igual que el rol, son por organización: afectan
+     solo la membresía donde ocurrió el reporte que las originó.
+   • Un usuario Suspendido o Baneado en una organización puede seguir usando con total normalidad
+     cualquier otra organización a la que pertenezca.
+   • Los préstamos activos de un usuario sancionado no se cancelan ni se alteran de forma retroactiva
+     por la sanción.
+   • Una suspensión temporal termina automáticamente al llegar su fecha de fin, sin que el
+     administrador tenga que intervenir.
+   • La aplicación nunca mueve dinero: cualquier pago acordado ocurre en persona, directamente
+     entre las dos partes, en el punto central.
+
+3.5 Requisitos de Interfaces Externas
+Interfaz de usuario: interfaz móvil desarrollada en Flutter, con una barra de navegación inferior fija
+entre Inicio, Necesidades, Mis préstamos, Historial y Perfil. En la parte superior de estas pantallas
+principales se muestra siempre una píldora con la organización activa, que permite cambiarla. Prioriza
+formularios simples y estados visuales claros del préstamo (confirmado, entrega pendiente, activo,
+devolución pendiente, finalizado, en conflicto). Para los administradores, la interfaz se extiende con un
+panel de administración accesible solo dentro de la organización que administran.
+
+Interfaces de software: API REST propia entre la aplicación Flutter y el backend, con comunicación
+mediante HTTP y JSON. El backend se conecta a una base de datos PostgreSQL para el almacenamiento
+de usuarios, organizaciones, membresías, necesidades, ofertas, préstamos y reportes.
+
+Interfaces de hardware: no se requiere hardware específico. El sistema funciona en cualquier
+smartphone con Android o iOS capaz de ejecutar una aplicación Flutter.
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                            Página 17 de 33
+4 Modelo de Datos
+Esta sección muestra qué información guarda el sistema y cómo se conecta. Sirve para que quien
+programe el backend sepa qué tablas crear, y para que quien lea el documento entienda por qué el rol y
+el estado de un usuario cambian de una organización a otra: viven en la membresía, no en el usuario.
+
+
+4.1 Diagrama entidad-relación
+La figura 6 muestra las siete entidades. Cada línea dice cuántos registros de un lado se relacionan con el
+otro. Por ejemplo, una organización tiene muchas membresías (1 a N), pero cada membresía pertenece
+a una sola organización.
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                            Página 18 de 33
+                                      Figura 6. Entidades de BORROWAPP y sus relaciones.
+
+
+4.2 Descripción de cada entidad
+Usuario
+La persona con cuenta en la app. Sus datos no dependen de ninguna organización.
+
+ Campo                           Tipo                 Qué guarda
+
+ id                              Entero (PK)          Identificador único.
+
+ nombre                          Texto                Nombre completo. Ejemplo: Jesús Vergara.
+
+ correo                          Texto, único         Correo con el que inicia sesión. No puede repetirse.
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                           Página 19 de 33
+ Campo                           Tipo                 Qué guarda
+
+ contraseña_hash                 Texto                Contraseña cifrada con bcrypt. Nunca se guarda en texto plano.
+
+
+
+Organización
+La comunidad cerrada. Se crea una sola vez y de ahí sale el código que usan los demás para entrar.
+
+ Campo                           Tipo                 Qué guarda
+
+ id                              Entero (PK)          Identificador único.
+
+ nombre                          Texto                Ejemplo: Universidad Tecnológica de Bolívar.
+
+ tipo                            Lista                UNIVERSIDAD, EMPRESA o CONJUNTO_RESIDENCIAL. Decide
+                                                      cómo se llama el identificador interno.
+
+ código                          Texto, único         5 caracteres alfanuméricos en mayúsculas. Lo genera el sistema.
+                                                      Ejemplo: K7Q4X.
+
+ punto_central                   Texto                Lugar de entrega y devolución. El administrador puede
+                                                      cambiarlo.
+
+ creada_por                      FK a Usuario         Quien la creó. Es su administrador.
+
+
+
+Membresía
+Une a un usuario con una organización. Aquí vive todo lo que cambia de una organización a otra.
+
+ Campo                           Tipo                 Qué guarda
+
+ id                              Entero (PK)          Identificador único.
+
+ usuario_id                      FK a Usuario         La persona.
+
+ organización_id                 FK a                 La comunidad. La pareja (usuario, organización) no puede
+                                 Organización         repetirse.
+
+ rol                             Lista                ADMINISTRADOR o MIEMBRO. Es administrador solo quien creó
+                                                      la organización.
+
+ estado                          Lista                ACTIVO, ADVERTIDO, SUSPENDIDO o BANEADO.
+
+ identificador_interno           Texto                Código estudiantil, código de empleado o número de
+                                                      apartamento. Ejemplo: T00061234.
+
+ sanción_hasta                   Fecha                Fecha en que termina una suspensión temporal. Vacío si no hay
+                                 (opcional)           suspensión.
+
+
+
+Necesidad
+Lo que un usuario pide dentro de una organización.
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                         Página 20 de 33
+ Campo                           Tipo                 Qué guarda
+
+ id                              Entero (PK)          Identificador único.
+
+ organización_id                 FK a                 Solo los miembros de esta organización la ven.
+                                 Organización
+
+ solicitante_id                  FK a Usuario         Quien la publicó.
+
+ objeto                          Texto                Ejemplo: Taladro percutor.
+
+ descripción                     Texto largo          Para qué lo necesita y cualquier detalle útil.
+
+ fecha_inicio, fecha_fin         Fechas               Periodo en que necesita el objeto.
+
+ estado                          Lista                BUSCANDO_PRESTADOR, CON_PRESTAMO_CONFIRMADO o
+                                                      CERRADA.
+
+
+
+Oferta
+La respuesta de un miembro a una necesidad. Las condiciones las define el prestador.
+
+ Campo                           Tipo                 Qué guarda
+
+ id                              Entero (PK)          Identificador único.
+
+ necesidad_id                    FK a Necesidad       A qué necesidad responde.
+
+ prestador_id                    FK a Usuario         Quien ofrece el objeto. No puede ser el solicitante.
+
+ modalidad                       Lista                GRATIS o ALQUILER.
+
+ precio                          Número               Solo si es alquiler. Ejemplo: 10000.
+                                 (opcional)
+
+ unidad_cobro                    Lista (opcional)     HORA o DIA. Solo si es alquiler.
+
+ fecha_entrega                   Fecha y hora         Cuándo puede entregar el objeto.
+
+ estado                          Lista                PENDIENTE, ACEPTADA, RECHAZADA o CERRADA.
+
+
+
+Préstamo
+Nace cuando se acepta una oferta. Guarda una copia de las condiciones para que no cambien después.
+
+ Campo                             Tipo                 Qué guarda
+
+ id                                Entero (PK)          Identificador único.
+
+ oferta_id                         FK a Oferta,         La oferta aceptada. Una oferta da origen a un solo préstamo.
+                                   único
+
+ organización_id                   FK a                 Dónde ocurre.
+                                   Organización
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                           Página 21 de 33
+ Campo                             Tipo                 Qué guarda
+
+ solicitante_id,                   FK a Usuario         Las dos partes.
+ prestador_id
+
+ fecha_inicio, fecha_fin           Fechas               Periodo del préstamo.
+
+ modalidad, precio_total           Lista y número       GRATIS o ALQUILER, y el total ($0 si es gratis).
+
+ punto_central                     Texto                Se copia de la organización al crear el préstamo. Si el
+                                                        administrador lo cambia después, este no cambia.
+
+ estado                            Lista                CONFIRMADO, ENTREGA_PENDIENTE, ACTIVO,
+                                                        DEVOLUCION_PENDIENTE o FINALIZADO.
+
+ en_conflicto                      Sí / No              Es Sí mientras haya un reporte pendiente. No reemplaza al
+                                                        estado.
+
+ entrega_prestador_en,             Fecha y hora         Cuándo confirmó cada parte la entrega. Vacío significa
+ entrega_solicitante_en            (opcional)           pendiente.
+
+ devolución_solicitante_en,        Fecha y hora         Cuándo confirmó cada parte la devolución. Vacío significa
+ devolución_prestador_en           (opcional)           pendiente.
+
+
+
+Reporte
+Un problema con un préstamo y lo que decidió el administrador.
+
+ Campo                           Tipo                 Qué guarda
+
+ id                              Entero (PK)          Identificador único.
+
+ préstamo_id                     FK a Préstamo        El préstamo con el problema.
+
+ reportante_id,                  FK a Usuario         Quién avisa y a quién se reporta.
+ reportado_id
+
+ tipo                            Lista                NO_DEVUELTO, DAÑADO o NO_ASISTIO.
+
+ descripción                     Texto largo          Lo que cuenta el reportante.
+
+ estado                          Lista                PENDIENTE o RESUELTO.
+
+ sanción                         Lista (opcional)     ADVERTENCIA, SUSPENSION o BANEO. Se llena al resolver.
+
+ nota_resolución,                Texto, FK,           Nota del administrador, quién decidió y cuándo.
+ admin_id, resuelto_en           fecha
+
+
+
+4.3 Reglas de integridad
+Estas reglas las debe hacer cumplir la base de datos o el backend, no solo la pantalla:
+      • El correo de un usuario y el código de una organización son únicos en todo el sistema.
+      • Un usuario no puede tener dos membresías en la misma organización.
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                            Página 22 de 33
+   • Una necesidad, una oferta o un préstamo solo se pueden consultar o modificar por usuarios con
+     membresía en la organización a la que pertenecen.
+   • Una necesidad nunca tiene dos ofertas en estado ACEPTADA.
+   • Un préstamo no cambia a ACTIVO sin las dos confirmaciones de entrega, ni a FINALIZADO sin las
+     dos de devolución.
+   • El prestador de una oferta no puede ser el solicitante de la necesidad.
+   • Un reporte RESUELTO siempre tiene sanción, administrador, fecha y nota de resolución.
+   • Al aceptar una oferta, el cambio de estado de la oferta, el cierre de las demás y la creación del
+     préstamo se guardan juntos: o pasa todo o no pasa nada (ver RNF-007).
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                            Página 23 de 33
+5 Apéndices
+Los apéndices completan el documento con lo que ayuda a entenderlo: las pantallas del prototipo, un
+ejemplo completo con nombres reales, la relación entre requisitos y pantallas, el registro de cambios y
+las preguntas que todavía hay que decidir.
+
+
+Apéndice A. Pantallas del prototipo
+Estas son las 16 pantallas que el equipo diseñó en el prototipo. Cada una lleva un código (P01 a P16) que
+se usa en la matriz del Apéndice C.
+
+P01 a P07 son el acceso y las organizaciones; P08 a P13, el inicio, las necesidades y las ofertas; P14 a
+P16, el préstamo, las sanciones y la administración.
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                              Página 24 de 33
+            P01 · Bienvenida                             P02 · Registro                         P03 · Sin organización
+        Crear cuenta o iniciar sesión             Nombre, correo y contraseña                Unirme con código o crear una
+
+
+
+
+          P04 · Unirme, paso 1                       P05 · Unirme, paso 2                     P06 · Crear organización
+        Los 5 caracteres del código            Confirma la organización e ingresa el   Nombre, tipo, punto central e identificador
+                                                           identificador
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                                 Página 25 de 33
+       P07 · Organización creada                           P08 · Inicio               P09 · Publicar necesidad
+        Muestra el código generado                Organización activa, resumen y      Objeto, descripción y fechas
+                                                      necesidades recientes
+
+
+
+
+       P10 · Detalle de necesidad                     P11 · Definir oferta             P12 · Ofertas recibidas
+        Necesidad de otro miembro                El prestador fija sus condiciones   El solicitante compara y decide
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                         Página 26 de 33
+      P13 · Confirmar aceptación                     P14 · Préstamo activo            P15 · Necesidades, suspendido
+    Aviso de cierre de las demás ofertas     Stepper y confirmaciones de devolución     Botones bloqueados y motivo
+
+
+
+
+     P16 · Panel de administración
+         Solo para el administrador
+
+
+
+
+Diferencias entre el prototipo y este documento
+Al comparar las pantallas con los requisitos aparecieron estas diferencias. El prototipo no está mal,
+simplemente es anterior a algunas decisiones, y conviene corregirlo para que coincida con el SRS:
+   • P10 muestra una calificación con estrella junto al nombre del solicitante. Las calificaciones están
+     fuera del alcance, así que debe quitarse.
+   • El texto del prototipo habla de "condominio" en algunos lugares. El documento usa "conjunto
+     residencial" en todas partes.
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                         Página 27 de 33
+   • P08 parece incluir una sección de objetos comunes con un enlace al catálogo. Ningún requisito la
+     pide (ver Apéndice E).
+   • Faltan por diseñar estas pantallas, que sí están descritas en el documento de diseño: inicio de
+     sesión, selector de organización, lista de Necesidades con sus tres pestañas, oferta enviada,
+     préstamo confirmado, Mis préstamos, las demás vistas del detalle de préstamo (por ejemplo el
+     estado En conflicto), reportar un problema, Historial, Perfil en cada organización, Mis
+     organizaciones, avisos de advertencia y baneo, y las pantallas del panel de administración
+     (miembros, publicaciones, préstamos, reportes, detalle de reporte, reporte resuelto y modificar
+     punto central).
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                        Página 28 de 33
+Apéndice B. Ejemplo completo paso a paso
+Este ejemplo sigue una operación real de principio a fin. Sirve para comprobar que cada requisito tiene
+sentido cuando se junta con los demás.
+
+B.1 Camilo alquila un taladro (todo sale bien)
+Camilo Junco necesita un taladro percutor del 14 al 16 de septiembre de 2026 (3 días). Todos están en la
+Universidad Tecnológica de Bolívar.
+
+ #      Cuándo            Quién            Qué hace                                            Cómo queda
+
+  1     10/09,            Camilo           Publica la necesidad "Taladro percutor" con         Necesidad: Buscando
+        mañana                             fecha de inicio 14/09 y fecha de fin 16/09.         prestador
+
+  2     10/09, tarde      Jesús            Toca "Tengo este objeto". Elige Alquiler,           Oferta de Jesús:
+                                           $10.000 por día, entrega el 14/09 a las 9:00 a.     Pendiente
+                                           m. La app calcula $10.000 x 3 días = $30.000.
+
+  3     10/09, noche      Laura            También responde, pero con préstamo gratuito        Oferta de Laura:
+                                           y entrega el 14/09 a las 9:30 a. m.                 Pendiente (total $0)
+
+  4     11/09             Camilo           Revisa las dos ofertas y acepta la de Jesús,        Oferta de Jesús:
+                                           porque entrega más temprano. Confirma en la         Aceptada
+                                           ventana de aviso.                                   Oferta de Laura:
+                                                                                               Cerrada
+                                                                                               Necesidad: Con
+                                                                                               préstamo confirmado
+                                                                                               Préstamo: Confirmado
+
+  5     14/09, 9:00       Jesús            Entrega el taladro en la Biblioteca Central y       Préstamo: Entrega
+        a. m.                              marca "Entregado".                                  pendiente
+
+  6     14/09, 9:05       Camilo           Recibe el taladro y confirma "Recibido". Paga los   Préstamo: Activo
+        a. m.                              $30.000 en persona, la app no interviene.
+
+  7     16/09, 4:30       Camilo           Regresa a la Biblioteca Central y marca             Préstamo: Devolución
+        p. m.                              "Devuelto".                                         pendiente
+
+  8     16/09, 4:35       Jesús            Revisa el taladro y confirma la devolución.         Préstamo: Finalizado
+        p. m.                                                                                  Necesidad: Cerrada
+                                                                                               Queda en el historial de
+                                                                                               los dos
+
+
+En el historial de Camilo la operación aparece con el chip "Solicitante"; en el de Jesús, con el chip
+"Prestador". Jesús es administrador de esta organización, pero eso no cambia nada en esta operación:
+aquí es un prestador como cualquier otro.
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                         Página 29 de 33
+B.2 Jesús no devuelve una bicicleta a tiempo (hay un problema)
+Ahora en Torres del Parque, donde Jesús es un miembro normal (Apto 502). Jesús le pidió prestada una
+bicicleta a Laura Gómez. El préstamo está Activo y la fecha de devolución ya pasó.
+
+ #      Cuándo            Quién              Qué hace                                           Cómo queda
+
+  1     22/09             Laura              Reporta el problema "El objeto no fue              Préstamo sigue en
+                                             devuelto" y escribe una descripción.               Activo, con la marca En
+                                                                                                conflicto
+                                                                                                Reporte: Pendiente
+
+  2     23/09             Administrador      Abre el reporte, elige "Suspensión temporal"       Reporte: Resuelto
+                          de Torres del      hasta el 30/09/2026, escribe una nota y            Jesús en Torres del
+                          Parque             confirma.                                          Parque: Suspendido
+                                                                                                La marca En conflicto
+                                                                                                desaparece
+
+  3     23/09             Jesús              Abre la app en Torres del Parque y ve el aviso     Su préstamo activo
+                                             de suspensión. Los botones Publicar, Tengo         sigue con normalidad
+                                             este objeto y Aceptar condiciones aparecen
+                                             bloqueados.
+
+  4     23/09             Jesús              Cambia a la Universidad Tecnológica de             Su estado en la UTB:
+                                             Bolívar y sigue usando la app sin ninguna          Activo
+                                             limitación.
+
+  5     24/09             Jesús y Laura      Jesús devuelve la bicicleta y marca "Devuelto".    Préstamo: Finalizado
+                                             Laura confirma.
+
+  6     30/09             El sistema         Llega la fecha de fin de la suspensión. Nadie      Jesús en Torres del
+                                             tiene que hacer nada.                              Parque: Activo
+
+
+Apéndice C. Qué pantalla cubre cada requisito
+Cuando una pantalla ya está en el prototipo aparece su código (P01 a P16). Cuando no, dice "Por
+diseñar" y entre paréntesis qué pantalla falta.
+
+ ID           Requisito                         Pantallas                                      Entidades que usa
+
+  RF-001      Registro de usuario               P01, P02                                       Usuario
+
+  RF-002      Inicio de sesión                  P01. Por diseñar (pantalla de inicio de        Usuario
+                                                sesión)
+
+  RF-003      Creación de organización          P06, P07                                       Organización, Membresía
+
+  RF-004      Unión con código                  P03, P04, P05                                  Organización, Membresía
+
+  RF-005      Restricción por                   Se aplica en todas las pantallas principales   Membresía
+              organización                      (P08 y siguientes)
+
+  RF-006      Publicación de necesidad          P09                                            Necesidad
+
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                         Página 30 de 33
+ ID           Requisito                         Pantallas                                     Entidades que usa
+
+  RF-007      Consulta de necesidades           P08. Por diseñar (lista de Necesidades con    Necesidad
+                                                pestañas)
+
+  RF-008      Creación de oferta                P10, P11. Por diseñar (oferta enviada)        Oferta
+
+  RF-009      Cálculo del precio                P11 (tarjeta "Total calculado")               Oferta, Préstamo
+
+  RF-010      Aceptar o rechazar ofertas        P12, P13                                      Oferta, Necesidad
+
+  RF-011      Creación del préstamo             P13. Por diseñar (préstamo confirmado)        Préstamo
+
+  RF-012      Confirmar entrega y               P14 (stepper). Por diseñar (vistas de         Préstamo
+              recepción                         Confirmado y Entrega pendiente)
+
+  RF-013      Confirmar devolución              P14. Por diseñar (vista de Devolución         Préstamo
+                                                pendiente y Finalizado)
+
+  RF-014      Reporte de problemas              Por diseñar (reportar un problema y           Reporte, Préstamo
+                                                préstamo En conflicto)
+
+  RF-015      Historial                         Por diseñar (Historial)                       Necesidad, Oferta,
+                                                                                              Préstamo
+
+  RF-016      Panel de administración           P16. Por diseñar (miembros,                   Membresía, Organización
+                                                publicaciones, préstamos, modificar
+                                                punto central)
+
+  RF-017      Aplicar y revertir sanciones      Por diseñar (reportes, detalle de reporte,    Reporte, Membresía
+                                                reporte resuelto)
+
+  RF-018      Restricciones a                   P15. Por diseñar (avisos de advertencia y     Membresía
+              sancionados                       baneo en el Perfil)
+
+  RF-019      Cambio de organización            P08 (píldora). Por diseñar (selector y Mis    Membresía
+              activa                            organizaciones)
+
+  RF-020      Cancelar necesidad                Por diseñar (botón en el detalle de mi        Necesidad, Oferta
+                                                necesidad)
+
+
+Apéndice D. Qué cambió frente a la versión 1.0
+La versión 1.0 tenía una buena base, pero varias cosas estaban incompletas, mal redactadas o no tenían
+en cuenta que un usuario puede estar en varias organizaciones. Esta tabla lista cada cambio y por qué se
+hizo.
+
+ Dónde                    Qué cambió                                              Por qué
+
+ Portada                  Versión 2.0, fecha 04/10/2026.                          Esta versión reemplaza a la 1.0 del
+                                                                                  17/08/2026.
+
+ 1.1 a 1.4                Texto reescrito. La tabla de definiciones pasó de 6     Faltaban términos clave como
+                          a 21 términos.                                          membresía, organización activa,
+                                                                                  solicitante, prestador y sanción.
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                          Página 31 de 33
+ Dónde                   Qué cambió                                             Por qué
+
+ 1.5 y 1.6               Nuevas: guía de lectura y datos de ejemplo.            Para que cualquier persona sepa
+                                                                                dónde buscar y los ejemplos sean
+                                                                                consistentes.
+
+ 2.1                     Se corrigió la redacción.                              La versión 1.0 tenía una frase cortada
+                                                                                ("con una base de datos .") y otra
+                                                                                confusa sobre el código de acceso.
+
+ 2.2                     Nueva: modelo de organizaciones y pertenencia          Era el punto más ambiguo. Define
+                         múltiple.                                              que el rol, el estado y el identificador
+                                                                                son por organización.
+
+ 2.3 y 2.4               Se agregó el cambio de organización activa. La         La versión 1.0 trataba el rol como
+                         tabla de usuarios aclara que el rol es de la           algo fijo del usuario.
+                         membresía, no de la cuenta.
+
+ 2.5                     Se agregó que el código tiene 5 caracteres y es        Antes solo decía "un código".
+                         único.
+
+ 2.6                     Tres suposiciones nuevas: un solo administrador        Eran reglas que se daban por hechas
+                         por organización, sin límite de organizaciones por     pero no estaban escritas.
+                         usuario, identificador interno sin validación
+                         externa.
+
+ 2.7                     Nueva: flujo completo con diagrama y lectura paso      Es el esquema visual que pedía el
+                         a paso.                                                equipo.
+
+ RF-001                  El correo debe ser único.                              No estaba dicho.
+
+ RF-003 y RF-004         Incluyen el código de 5 caracteres, el identificador   Reflejan el modelo de membresías.
+                         interno y la pertenencia a varias organizaciones.
+
+ RF-005, RF-006,         Ahora hablan de la organización activa.                Todo se filtra por la organización que
+ RF-007                                                                         el usuario está viendo.
+
+ RF-008                  Dice que el prestador define las condiciones           La versión 1.0 no decía quién fija las
+                         (modalidad, precio, unidad y fecha de entrega) y       condiciones.
+                         que la oferta nace Pendiente.
+
+ RF-010                  Aclara que rechazar una oferta no cierra la            La versión 1.0 decía "rechazadas o
+                         necesidad, y que aceptar una cierra las demás.         cerradas", sin precisar.
+
+ RF-014                  El reporte llega al administrador de la organización   El texto original estaba mezclado y
+                         donde ocurre el préstamo. Se corrigió la               con mayúsculas irregulares.
+                         redacción.
+
+ RF-016, RF-017,         RF-017 y RF-018 intercambiaron sus nombres para        En la versión 1.0 los nombres no
+ RF-018                  que coincidan con su contenido. La sanción se          coincidían con lo que decían.
+                         aplica a la membresía, no al usuario en general.
+
+ RF-019, RF-020          Nuevos: cambiar la organización activa y cancelar      Eran funciones que la app necesita
+                         una necesidad.                                         pero no estaban como requisito.
+
+ RNF-003, RNF-           Reescritos con más claridad.                           La redacción original era vaga.
+ 005
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                         Página 32 de 33
+ Dónde                   Qué cambió                                                Por qué
+
+ RNF-007                 Nuevo: las transiciones de estado deben ser               Evita que dos ofertas queden
+                         atómicas.                                                 aceptadas a la vez.
+
+ 3.3 y 3.4               Nuevas: diagramas de estados y reglas de negocio          Reúnen en un solo lugar cómo
+                         en lenguaje sencillo.                                     cambia cada estado.
+
+ 3.5                     Antes era la 3.3. Ahora incluye la píldora de             Se movió por las secciones nuevas.
+                         organización activa.
+
+ 4y5                     Nuevas: modelo de datos y apéndices completos.            La versión 1.0 decía que los
+                                                                                   apéndices se incluirían "en una
+                                                                                   versión posterior".
+
+ Prioridades             Se unificó el formato (Alta, Media, Baja).                En la versión 1.0 algunas estaban en
+                                                                                   mayúsculas.
+
+
+Apéndice E. Puntos que el equipo debe decidir
+Al revisar el documento y el prototipo encontramos situaciones que ninguno de los dos resuelve. No las
+llené inventando reglas: cada una trae lo que hace hoy el documento y una propuesta para que el
+equipo elija.
+
+ #      Situación                             Qué pasa hoy en el documento          Propuesta
+
+  1     El administrador es parte del         Como solo hay un administrador        Aceptarlo en el MVP y dejarlo
+        problema (por ejemplo,                y no se puede transferir, él          escrito como limitación. Un segundo
+        prestó el objeto que no le            mismo decide sobre su propio          administrador queda para una
+        devolvieron).                         reporte.                              versión futura.
+
+  2     Llega la fecha de fin y nadie         El préstamo sigue Activo. Solo el     Mostrar una etiqueta visual
+        marca "Devuelto".                     prestador puede reportar.             "Vencido" sin crear un estado
+                                                                                    nuevo.
+
+  3     Cancelar un préstamo que ya           No hay requisito. RF-020 solo         Permitir que cualquiera de las dos
+        está Confirmado, antes de la          cancela necesidades.                  partes lo cancele antes de la
+        entrega.                                                                    entrega, y volver la necesidad a
+                                                                                    Buscando prestador.
+
+  4     Una necesidad llega a su              Sigue en Buscando prestador.          Cerrarla automáticamente al pasar
+        fecha de inicio sin haber                                                   la fecha de fin.
+        recibido ofertas aceptadas.
+
+  5     Un usuario baneado.                   RF-018 cubre sus préstamos            Cerrar sus necesidades y ofertas
+                                              activos, pero no sus necesidades      pendientes al banearlo, y no dejarlo
+                                              ni ofertas pendientes, ni si puede    volver a unirse con el mismo correo.
+                                              volver a entrar con el código.
+
+  6     Sección "Objetos comunes"             Ningún requisito la pide.             Quitarla del prototipo, o agregar un
+        en el Inicio (P08).                                                         requisito si el equipo la quiere.
+
+  7     Calificación con estrella en          Está fuera del alcance (ver 1.2).     Quitarla del prototipo.
+        P10.
+
+
+
+BORROWAPP · Especificación de Requisitos de Software · Versión 2.0                                            Página 33 de 33
+
