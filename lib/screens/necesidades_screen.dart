@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/operaciones.dart';
 import '../services/servicios.dart';
 import '../theme/app_theme.dart';
@@ -69,7 +70,8 @@ class _NecesidadesScreenState extends State<NecesidadesScreen> {
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const DetalleNecesidadScreen(),
+                        builder: (_) =>
+                            DetalleNecesidadScreen(necesidad: necesidad),
                       ),
                     ),
                   ),

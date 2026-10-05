@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+
 import '../services/servicios.dart';
 import '../utils/nav.dart';
 import 'inicio_screen.dart';
 import 'sin_organizacion_screen.dart';
 
-/// P01.1 · Login
+/// P01.1 · Inicio de sesión.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -29,9 +30,9 @@ class _LoginScreenState extends State<LoginScreen> {
         _correoController.text,
         _contrasenaController.text,
       );
-      
+
       if (!mounted) return;
-      
+
       if (Servicios.i.sesion.tieneOrganizaciones) {
         Nav.ir(context, const InicioScreen());
       } else {
@@ -86,7 +87,10 @@ class _LoginScreenState extends State<LoginScreen> {
               if (_error != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
-                  child: Text(_error!, style: const TextStyle(color: Colors.red)),
+                  child: Text(
+                    _error!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
                 ),
               TextField(
                 controller: _correoController,

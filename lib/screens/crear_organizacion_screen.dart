@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
+
 import '../models/enums.dart';
 import '../services/servicios.dart';
 import '../theme/app_theme.dart';
 import 'organizacion_creada_screen.dart';
 
-// P06: Crear organización
+// P06: Formulario para crear una organización.
 class CrearOrganizacionScreen extends StatefulWidget {
   const CrearOrganizacionScreen({super.key});
 
   @override
-  State<CrearOrganizacionScreen> createState() => _CrearOrganizacionScreenState();
+  State<CrearOrganizacionScreen> createState() =>
+      _CrearOrganizacionScreenState();
 }
 
 class _CrearOrganizacionScreenState extends State<CrearOrganizacionScreen> {
   final _nombreCtrl = TextEditingController();
+  final _identificadorCtrl = TextEditingController();
   final _puntoCentralCtrl = TextEditingController();
   String _tipo = 'Universidad';
-  String _identificador = 'Tu código estudiantil/empleado/apto';
+  final String _identificador = 'Tu código estudiantil/empleado/apto';
 
   bool _cargando = false;
   String? _error;
@@ -28,6 +31,7 @@ class _CrearOrganizacionScreenState extends State<CrearOrganizacionScreen> {
       _cargando = true;
       _error = null;
     });
+    // El servicio genera el código y registra al creador como administrador.
     try {
       final tipo = switch (_tipo) {
         'Empresa' => TipoOrganizacion.empresa,
@@ -39,7 +43,7 @@ class _CrearOrganizacionScreenState extends State<CrearOrganizacionScreen> {
         nombre: _nombreCtrl.text,
         tipo: tipo,
         puntoCentral: _puntoCentralCtrl.text,
-        identificadorInterno: _identificador,
+        identificadorInterno: _identificadorCtrl.text,
       );
       await Servicios.i.sesion.recargar(activarOrganizacionId: organizacion.id);
       if (!mounted) return;
@@ -56,6 +60,14 @@ class _CrearOrganizacionScreenState extends State<CrearOrganizacionScreen> {
     } finally {
       if (mounted) setState(() => _cargando = false);
     }
+  }
+
+  @override
+  void dispose() {
+    _nombreCtrl.dispose();
+    _identificadorCtrl.dispose();
+    _puntoCentralCtrl.dispose();
+    super.dispose();
   }
 
   @override
@@ -78,7 +90,10 @@ class _CrearOrganizacionScreenState extends State<CrearOrganizacionScreen> {
                   labelText: 'Nombre',
                   filled: true,
                   fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -88,9 +103,14 @@ class _CrearOrganizacionScreenState extends State<CrearOrganizacionScreen> {
                   labelText: 'Tipo',
                   filled: true,
                   fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
-                items: ['Universidad', 'Empresa', 'Conjunto Residencial'].map((t) {
+                items: ['Universidad', 'Empresa', 'Conjunto Residencial'].map((
+                  t,
+                ) {
                   return DropdownMenuItem(value: t, child: Text(t));
                 }).toList(),
                 onChanged: (val) {
@@ -101,14 +121,17 @@ class _CrearOrganizacionScreenState extends State<CrearOrganizacionScreen> {
               ),
               const SizedBox(height: 16),
               TextFormField(
-                initialValue: _identificador,
+                controller: _identificadorCtrl,
                 decoration: InputDecoration(
-                  labelText: 'Nombre de identificador interno',
+                  labelText: 'Identificador interno',
+                  hintText: _identificador,
                   filled: true,
                   fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
-                onChanged: (val) => _identificador = val,
               ),
               const SizedBox(height: 16),
               if (_error != null)
@@ -119,7 +142,10 @@ class _CrearOrganizacionScreenState extends State<CrearOrganizacionScreen> {
                   labelText: 'Punto común de entrega y devolución',
                   filled: true,
                   fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
               const SizedBox(height: 32),

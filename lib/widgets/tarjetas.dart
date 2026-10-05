@@ -159,7 +159,7 @@ class TarjetaPrestamo extends StatelessWidget {
   }
 }
 
-/// Stepper horizontal del préstamo: Confirmado → Entrega → Activo → Devolución → Finalizado.
+/// Indicador horizontal del préstamo: Confirmado → Entrega → Activo → Devolución → Finalizado.
 class StepperPrestamo extends StatelessWidget {
   const StepperPrestamo({super.key, required this.estado});
   final EstadoPrestamo estado;
