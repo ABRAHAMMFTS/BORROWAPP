@@ -54,7 +54,7 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - stitch_borrowapp_ui_system_design/stitch_borrowapp_ui_system_design/image.png_1/screen.png
+    - images/stitch_borrowapp_ui_system_design/image.png_1/screen.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

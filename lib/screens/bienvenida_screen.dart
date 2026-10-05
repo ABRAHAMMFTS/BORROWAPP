@@ -21,7 +21,7 @@ class BienvenidaScreen extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(28),
                 child: Image.asset(
-                  'stitch_borrowapp_ui_system_design/stitch_borrowapp_ui_system_design/image.png_1/screen.png',
+                  'images/stitch_borrowapp_ui_system_design/image.png_1/screen.png',
                   width: 230,
                   height: 176,
                   fit: BoxFit.contain,
