@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Organización Creada - BorrowApp</title>
+<!-- Tailwind CSS CDN with forms and container queries plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandMint: '#E6F4F1',
+            brandDark: '#1E293B',
+            brandDarkHover: '#0F172A',
+            emeraldCheck: '#10B981',
+            mintBadge: '#D1ECE7',
+            mintText: '#134E48'
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+<style data-purpose="custom-typography">
+    /* Monospace styling for verification code boxes */
+    .code-box {
+      font-feature-settings: "tnum";
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-0 sm:p-4 antialiased selection:bg-teal-200">
+<!-- BEGIN: MobileFrame -->
+<!-- Container replicating 390px iOS mobile device layout -->
+<main class="w-full max-w-[390px] h-[844px] bg-[#E6F4F1] flex flex-col justify-between shadow-2xl sm:rounded-[48px] overflow-hidden relative border border-teal-100/50">
+<!-- BEGIN: StatusBar -->
+<!-- Native-style iOS Status Bar -->
+<header class="w-full pt-3 px-7 flex justify-between items-center z-10 select-none text-slate-800">
+<span class="text-[15px] font-semibold tracking-tight">9:41</span>
+<div class="flex items-center space-x-2 text-slate-800">
+<!-- Cellular Signal Indicator -->
+<svg class="w-4 h-4 fill-current" viewbox="0 0 24 24">
+<path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25c-.2.2-.2.51 0 .71.1.1.23.15.35.15.13 0 .26-.05.35-.15l.74-.74C7.38 19.34 9.56 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z" opacity="0"></path>
+<rect height="5" rx="1" width="3" x="2" y="16"></rect>
+<rect height="9" rx="1" width="3" x="7" y="12"></rect>
+<rect height="13" rx="1" width="3" x="12" y="8"></rect>
+<rect height="17" rx="1" width="3" x="17" y="4"></rect>
+</svg>
+<!-- Wi-Fi Indicator -->
+<svg class="w-4 h-4 fill-current" viewbox="0 0 24 24">
+<path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98C20.93 5.9 16.69 4 12 4zm0 3c3.84 0 7.33 1.44 10.01 3.84L12 18.89 1.99 10.84C4.67 8.44 8.16 7 12 7z"></path>
+</svg>
+<!-- Battery Indicator -->
+<div class="w-6 h-3 border border-slate-800 rounded-[4px] p-0.5 flex items-center">
+<div class="h-full w-4 bg-slate-800 rounded-sm"></div>
+</div>
+</div>
+</header>
+<!-- END: StatusBar -->
+<!-- BEGIN: ConfirmationContent -->
+<!-- Core feedback content and organization code display -->
+<section class="flex-1 flex flex-col items-center justify-center px-6 text-center">
+<!-- Success Icon -->
+<div class="mb-5 flex items-center justify-center" data-purpose="success-icon">
+<div class="w-20 h-20 rounded-full bg-[#00897B] flex items-center justify-center shadow-md shadow-teal-700/10">
+<svg class="w-10 h-10 text-white stroke-[3.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4.5 12.75l6 6 9-13.5" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+<!-- Main Heading & Context Subtitle -->
+<h1 class="text-2xl font-bold text-slate-800 tracking-tight mb-1.5" data-purpose="title">
+        ¡Organización creada!
+      </h1>
+<p class="text-sm font-medium text-slate-500 mb-6" data-purpose="subtitle">
+        Código generado en:
+      </p>
+<!-- 5 Large Distinct Character Boxes -->
+<div class="flex items-center justify-center space-x-2.5 mb-7 w-full max-w-xs" data-purpose="code-display">
+<div class="code-box w-12 h-14 bg-white rounded-xl shadow-sm border border-slate-200/90 flex items-center justify-center text-2xl font-bold text-slate-800">
+          K
+        </div>
+<div class="code-box w-12 h-14 bg-white rounded-xl shadow-sm border border-slate-200/90 flex items-center justify-center text-2xl font-bold text-slate-800">
+          7
+        </div>
+<div class="code-box w-12 h-14 bg-white rounded-xl shadow-sm border border-slate-200/90 flex items-center justify-center text-2xl font-bold text-slate-800">
+          Q
+        </div>
+<div class="code-box w-12 h-14 bg-white rounded-xl shadow-sm border border-slate-200/90 flex items-center justify-center text-2xl font-bold text-slate-800">
+          4
+        </div>
+<div class="code-box w-12 h-14 bg-white rounded-xl shadow-sm border border-slate-200/90 flex items-center justify-center text-2xl font-bold text-slate-800">
+          X
+        </div>
+</div>
+<!-- Action Buttons: Copiar & Compartir -->
+<div class="flex items-center justify-center space-x-3 w-full max-w-[260px] mb-6" data-purpose="code-actions">
+<button class="flex-1 py-2 px-4 bg-white/90 hover:bg-white text-slate-700 text-sm font-semibold rounded-full border border-slate-300 shadow-sm transition-colors active:scale-95 duration-150" type="button">
+          Copiar
+        </button>
+<button class="flex-1 py-2 px-4 bg-white/90 hover:bg-white text-slate-700 text-sm font-semibold rounded-full border border-slate-300 shadow-sm transition-colors active:scale-95 duration-150" type="button">
+          Compartir
+        </button>
+</div>
+<!-- Share Hint Text -->
+<p class="text-xs text-slate-500 font-medium mb-6">
+        Comparte este código...
+      </p>
+<!-- Role Badge -->
+<div class="inline-flex items-center px-4 py-1.5 rounded-full bg-[#D7ECE7] text-[#134E48] text-xs font-semibold tracking-wide" data-purpose="role-badge">
+        Eres el administrador
+      </div>
+</section>
+<!-- END: ConfirmationContent -->
+<!-- BEGIN: FooterAction -->
+<!-- Primary Bottom Navigation Button -->
+<footer class="p-6 pb-9 w-full flex flex-col items-center">
+<button class="w-full py-4 bg-[#1E293B] hover:bg-[#0F172A] text-white font-medium text-[15px] rounded-2xl shadow-lg shadow-slate-900/15 transition-all duration-200 active:scale-[0.98]" type="button">
+        Ir al inicio
+      </button>
+<!-- iOS Home Indicator -->
+<div class="w-32 h-1 bg-slate-400/50 rounded-full mt-5"></div>
+</footer>
+<!-- END: FooterAction -->
+</main>
+<!-- END: MobileFrame -->
+</body></html>
