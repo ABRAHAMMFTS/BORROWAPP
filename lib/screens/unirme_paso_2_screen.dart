@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/usuario.dart';
 import '../services/servicios.dart';
 import '../theme/app_theme.dart';
+import '../widgets/componentes.dart';
 import 'inicio_screen.dart';
 
 // P05: Unirme paso 2
@@ -64,24 +65,45 @@ class _UnirmePaso2ScreenState extends State<UnirmePaso2Screen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 24),
-              // Vista previa de la organización
-              const CircleAvatar(
-                radius: 40,
-                backgroundColor: BColors.laguna100,
-                child: Icon(Icons.school, size: 40, color: BColors.laguna700),
+              // Vista previa: ícono según el tipo, nombre, tipo y punto central.
+              TarjetaBlanca(
+                padding: const EdgeInsets.all(20),
+                child: Column(children: [
+                  CircleAvatar(
+                    radius: 36,
+                    backgroundColor: BColors.laguna100,
+                    child: Icon(
+                      iconoDeTipoOrganizacion(widget.organizacion.tipo),
+                      size: 36,
+                      color: BColors.laguna700,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    widget.organizacion.nombre,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(widget.organizacion.tipo.etiqueta,
+                      style: const TextStyle(color: BColors.tinta2)),
+                  const SizedBox(height: 12),
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    const Icon(Icons.place_outlined, size: 18, color: BColors.tinta3),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(widget.organizacion.puntoCentral,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: BColors.tinta2, fontSize: 13)),
+                    ),
+                  ]),
+                ]),
               ),
-              const SizedBox(height: 16),
-              Text(
-                widget.organizacion.nombre,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              Text(widget.organizacion.tipo.etiqueta, style: const TextStyle(color: BColors.tinta2)),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               TextField(
                 controller: _idCtrl,
                 decoration: InputDecoration(
-                  labelText: 'TU CÓDIGO ESTUDIANTIL',
+                  labelText: widget.organizacion.tipo.etiquetaIdentificador,
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
@@ -93,10 +115,6 @@ class _UnirmePaso2ScreenState extends State<UnirmePaso2Screen> {
               const SizedBox(height: 8),
               if (_error != null)
                 Text(_error!, style: const TextStyle(color: BColors.error)),
-              const Text(
-                'El administrador validará tus permisos',
-                style: TextStyle(fontSize: 12, color: BColors.tinta3),
-              ),
               const Spacer(),
               SizedBox(
                 width: double.infinity,

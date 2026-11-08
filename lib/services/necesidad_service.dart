@@ -270,6 +270,38 @@ class NecesidadService {
         .length;
   }
 
+  /// Ofertas pendientes que el usuario tiene por decidir en sus necesidades
+  /// abiertas de la organización (tarjeta "Ofertas recibidas" del Inicio).
+  Future<int> ofertasPendientesRecibidas(
+      int usuarioId, int organizacionId) async {
+    var total = 0;
+    for (final n in await _repo.necesidadesDeOrganizacion(organizacionId)) {
+      if (n.solicitanteId != usuarioId ||
+          n.estado != EstadoNecesidad.buscandoPrestador) {
+        continue;
+      }
+      total += (await _repo.ofertasDeNecesidad(n.id))
+          .where((o) => o.estado == EstadoOferta.pendiente)
+          .length;
+    }
+    return total;
+  }
+
+  /// Necesidades de la organización a las que el usuario ofreció, con su
+  /// oferta (pestaña "Mis ofertas").
+  Future<List<({Necesidad necesidad, Oferta oferta})>> misOfertas(
+      int usuarioId, int organizacionId) async {
+    final salida = <({Necesidad necesidad, Oferta oferta})>[];
+    for (final o in await _repo.ofertasDePrestador(usuarioId)) {
+      final n = await _repo.necesidadPorId(o.necesidadId);
+      if (n != null && n.organizacionId == organizacionId) {
+        salida.add((necesidad: n, oferta: o));
+      }
+    }
+    salida.sort((a, b) => b.oferta.id.compareTo(a.oferta.id));
+    return salida;
+  }
+
   // ---------------- Auxiliares privados ----------------
 
   void _exigirSolicitante(Necesidad n, int usuarioId) {

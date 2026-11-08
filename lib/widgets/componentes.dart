@@ -20,6 +20,13 @@ void mostrarMensaje(BuildContext context, String texto, {bool error = false}) {
     ));
 }
 
+/// Ícono según el tipo de organización.
+IconData iconoDeTipoOrganizacion(TipoOrganizacion tipo) => switch (tipo) {
+      TipoOrganizacion.universidad => Icons.school_outlined,
+      TipoOrganizacion.empresa => Icons.business_outlined,
+      TipoOrganizacion.conjuntoResidencial => Icons.apartment_outlined,
+    };
+
 /// Cuadro de confirmación centrado con radio 28. Devuelve true si acepta.
 Future<bool> confirmarDialogo(
   BuildContext context, {

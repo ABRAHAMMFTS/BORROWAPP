@@ -1,0 +1,17 @@
+# Variables de entorno y secretos (NUNCA subir a Git)
+.env
+*.env
+
+# Certificados y bases de datos locales
+*.db
+*.sqlite
+*.sqlite3
+ca.pem
+
+# Entornos virtuales y caché de Python
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+

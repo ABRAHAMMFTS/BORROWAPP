@@ -54,9 +54,14 @@ class PrestamoService {
   // flujo normal (RF-018).
 
   /// RF-012: el prestador marca "Entregado". Pasa a ENTREGA_PENDIENTE.
-  Future<Prestamo> marcarEntregado(int prestamoId, int usuarioId) async {
+  Future<Prestamo> marcarEntregado(
+    int prestamoId, {
+    int? prestadorId,
+    int? usuarioId,
+  }) async {
+    final uid = prestadorId ?? usuarioId!;
     final p = await _prestamoOError(prestamoId);
-    _exigirParte(p.prestadorId, usuarioId, 'el prestador');
+    _exigirParte(p.prestadorId, uid, 'el prestador');
     _exigirEstado(p, EstadoPrestamo.confirmado,
         'La entrega ya fue marcada o el préstamo no está confirmado.');
     return _guardar(p.copyWith(
@@ -67,9 +72,14 @@ class PrestamoService {
 
   /// RF-012: el solicitante confirma "Recibido". Solo con las dos
   /// confirmaciones el préstamo pasa a ACTIVO.
-  Future<Prestamo> confirmarRecibido(int prestamoId, int usuarioId) async {
+  Future<Prestamo> confirmarRecibido(
+    int prestamoId, {
+    int? solicitanteId,
+    int? usuarioId,
+  }) async {
+    final uid = solicitanteId ?? usuarioId!;
     final p = await _prestamoOError(prestamoId);
-    _exigirParte(p.solicitanteId, usuarioId, 'el solicitante');
+    _exigirParte(p.solicitanteId, uid, 'el solicitante');
     _exigirEstado(p, EstadoPrestamo.entregaPendiente,
         'Primero el prestador debe marcar la entrega.');
     if (p.entregaPrestadorEn == null) {
@@ -83,9 +93,14 @@ class PrestamoService {
   }
 
   /// RF-013: el solicitante marca "Devuelto". Pasa a DEVOLUCION_PENDIENTE.
-  Future<Prestamo> marcarDevuelto(int prestamoId, int usuarioId) async {
+  Future<Prestamo> marcarDevuelto(
+    int prestamoId, {
+    int? solicitanteId,
+    int? usuarioId,
+  }) async {
+    final uid = solicitanteId ?? usuarioId!;
     final p = await _prestamoOError(prestamoId);
-    _exigirParte(p.solicitanteId, usuarioId, 'el solicitante');
+    _exigirParte(p.solicitanteId, uid, 'el solicitante');
     _exigirEstado(p, EstadoPrestamo.activo,
         'El préstamo debe estar activo para marcar la devolución.');
     return _guardar(p.copyWith(
@@ -96,9 +111,14 @@ class PrestamoService {
 
   /// RF-013: el prestador confirma la devolución. Solo con las dos
   /// confirmaciones el préstamo pasa a FINALIZADO y la necesidad se cierra.
-  Future<Prestamo> confirmarDevolucion(int prestamoId, int usuarioId) async {
+  Future<Prestamo> confirmarDevolucion(
+    int prestamoId, {
+    int? prestadorId,
+    int? usuarioId,
+  }) async {
+    final uid = prestadorId ?? usuarioId!;
     final p = await _prestamoOError(prestamoId);
-    _exigirParte(p.prestadorId, usuarioId, 'el prestador');
+    _exigirParte(p.prestadorId, uid, 'el prestador');
     _exigirEstado(p, EstadoPrestamo.devolucionPendiente,
         'Primero el solicitante debe marcar la devolución.');
     final fin = await _guardar(p.copyWith(
@@ -173,6 +193,20 @@ class PrestamoService {
   }
 
   Future<Reporte?> reporte(int id) => _repo.reportePorId(id);
+
+  /// Motivo de la sanción vigente de un usuario en una organización: la nota
+  /// del último reporte resuelto en su contra. Null si no hay ninguno.
+  Future<String?> motivoSancion(int usuarioId, int organizacionId) async {
+    final lista = (await _repo.reportesDeOrganizacion(organizacionId))
+        .where((r) =>
+            r.reportadoId == usuarioId &&
+            r.estado == EstadoReporte.resuelto &&
+            (r.notaResolucion ?? '').isNotEmpty)
+        .toList()
+      ..sort((a, b) => (b.resueltoEn ?? b.creadoEn)
+          .compareTo(a.resueltoEn ?? a.creadoEn));
+    return lista.isEmpty ? null : lista.first.notaResolucion;
+  }
 
   /// RF-017: el administrador resuelve un reporte aplicando una sanción.
   /// Actualiza la membresía del reportado SOLO en esta organización, marca el

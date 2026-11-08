@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../models/usuario.dart';
 import '../theme/app_theme.dart';
+import '../widgets/codigo_organizacion.dart';
 import 'inicio_screen.dart';
 
 // P07: Organización creada
@@ -46,27 +47,7 @@ class OrganizacionCreadaScreen extends StatelessWidget {
                   style: TextStyle(color: Colors.white),
                 ),
                 const SizedBox(height: 24),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 16,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(
-                      alpha: 0.14,
-                    ), // Efecto de vidrio.
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    organizacion.codigo.split('').join(' '),
-                    style: TextStyle(
-                      fontSize: 32,
-                      letterSpacing: 8,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                CodigoOrganizacion(codigo: organizacion.codigo, claro: true),
                 const SizedBox(height: 32),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,

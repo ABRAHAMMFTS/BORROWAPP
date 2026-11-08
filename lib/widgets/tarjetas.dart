@@ -130,7 +130,11 @@ class TarjetaPrestamo extends StatelessWidget {
                         style: const TextStyle(color: BColors.tinta2, fontSize: 13)),
                     const SizedBox(height: 8),
                     Wrap(spacing: 6, runSpacing: 6, children: [
-                      ChipEstado.prestamo(p.estado, enConflicto: p.enConflicto),
+                      ChipEstado.papel(soySolicitante),
+                      ChipEstado.modalidad(p.modalidad),
+                      ChipEstado.prestamo(p.estado),
+                      if (p.enConflicto)
+                        ChipEstado.prestamo(p.estado, enConflicto: true),
                       if (p.vencido)
                         const ChipEstado('Vencido', Icons.event_busy, BColors.errorFondo, BColors.error),
                     ]),
@@ -143,13 +147,15 @@ class TarjetaPrestamo extends StatelessWidget {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                color: BColors.sol100,
+                color: BColors.sol400,
                 child: Row(children: [
-                  const Icon(Icons.touch_app_outlined, size: 20, color: BColors.solTexto),
+                  const Icon(Icons.touch_app_outlined, size: 20, color: BColors.tinta),
                   const SizedBox(width: 8),
-                  Text(accion,
-                      style: const TextStyle(
-                          color: BColors.solTexto, fontWeight: FontWeight.w600, fontSize: 14)),
+                  Expanded(
+                    child: Text(accion,
+                        style: const TextStyle(
+                            color: BColors.tinta, fontWeight: FontWeight.w700, fontSize: 14)),
+                  ),
                 ]),
               ),
           ]),

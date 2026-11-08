@@ -4,7 +4,9 @@ import '../models/enums.dart';
 import '../models/operaciones.dart';
 import '../services/servicios.dart';
 import '../theme/app_theme.dart';
-import 'ofertas_recibidas_screen.dart';
+import '../utils/formato.dart';
+import '../utils/regla_negocio_exception.dart';
+import 'oferta_enviada_screen.dart';
 
 // P11: Formulario para definir las condiciones de una oferta.
 class DefinirOfertaScreen extends StatefulWidget {
@@ -17,6 +19,11 @@ class DefinirOfertaScreen extends StatefulWidget {
 }
 
 class _DefinirOfertaScreenState extends State<DefinirOfertaScreen> {
+  /// Punto central de la organización de la necesidad (solo lectura).
+  String get _puntoCentral =>
+      Servicios.i.sesion.organizacion(widget.necesidad.organizacionId)?.puntoCentral ??
+      '';
+
   final _precioCtrl = TextEditingController();
   Modalidad _modalidad = Modalidad.gratis;
   UnidadCobro _unidad = UnidadCobro.dia;
@@ -24,16 +31,34 @@ class _DefinirOfertaScreenState extends State<DefinirOfertaScreen> {
   bool _cargando = false;
   String? _error;
 
+  /// Convierte lo escrito a número. En Colombia el punto separa miles
+  /// ("10.000") y la coma los decimales.
+  double? get _precio => double.tryParse(
+      _precioCtrl.text.trim().replaceAll('.', '').replaceAll(',', '.'));
+
   double get _total {
     // El servicio centraliza la regla: gratis es cero y alquiler depende
     // del precio y de los días u horas de la necesidad.
-    final precio = double.tryParse(_precioCtrl.text.replaceAll(',', '.'));
     return Servicios.i.necesidades.calcularTotal(
       necesidad: widget.necesidad,
       modalidad: _modalidad,
-      precio: precio,
+      precio: _precio,
       unidad: _unidad,
     );
+  }
+
+  /// Texto del cálculo, por ejemplo "$10.000 x 3 días = $30.000".
+  String get _detalleTotal {
+    final precio = _precio;
+    if (_modalidad == Modalidad.gratis || precio == null || precio <= 0) {
+      return '';
+    }
+    final dias = widget.necesidad.dias;
+    final cantidad = _unidad == UnidadCobro.dia ? dias : dias * 24;
+    final unidad = _unidad == UnidadCobro.dia
+        ? (cantidad == 1 ? 'día' : 'días')
+        : (cantidad == 1 ? 'hora' : 'horas');
+    return '${Formato.dinero(precio)} x $cantidad $unidad = ${Formato.dinero(_total)}';
   }
 
   String _fechaHora(DateTime fecha) =>
@@ -41,14 +66,24 @@ class _DefinirOfertaScreenState extends State<DefinirOfertaScreen> {
       '${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}';
 
   Future<void> _seleccionarEntrega() async {
-    // Primero se elige el día y después la hora de entrega.
+    // Primero se elige el día y después la hora de entrega. El último día
+    // permitido es el de fin de la necesidad (hasta el final de ese día).
+    final ahora = DateTime.now();
+    final fin = widget.necesidad.fechaFin;
+    final ultimo = DateTime(fin.year, fin.month, fin.day, 23, 59);
+    final primero = DateTime(ahora.year, ahora.month, ahora.day);
+    if (ultimo.isBefore(primero)) {
+      setState(() => _error = 'Esta necesidad ya terminó.');
+      return;
+    }
+    var inicial = _entrega;
+    if (inicial.isAfter(ultimo)) inicial = ultimo;
+    if (inicial.isBefore(primero)) inicial = primero;
     final fecha = await showDatePicker(
       context: context,
-      firstDate: DateTime.now(),
-      lastDate: widget.necesidad.fechaFin,
-      initialDate: _entrega.isAfter(widget.necesidad.fechaFin)
-          ? widget.necesidad.fechaFin
-          : _entrega,
+      firstDate: primero,
+      lastDate: ultimo,
+      initialDate: inicial,
       helpText: 'Selecciona el día de entrega',
     );
     if (fecha == null || !mounted) return;
@@ -58,6 +93,7 @@ class _DefinirOfertaScreenState extends State<DefinirOfertaScreen> {
     );
     if (hora == null || !mounted) return;
     setState(() {
+      _error = null;
       _entrega = DateTime(
         fecha.year,
         fecha.month,
@@ -77,22 +113,27 @@ class _DefinirOfertaScreenState extends State<DefinirOfertaScreen> {
     });
     // La oferta queda pendiente hasta que el solicitante la acepte.
     try {
-      await Servicios.i.necesidades.crearOferta(
+      final oferta = await Servicios.i.necesidades.crearOferta(
         prestadorId: usuario.id,
         necesidadId: widget.necesidad.id,
         modalidad: _modalidad,
-        precio: double.tryParse(_precioCtrl.text.replaceAll(',', '.')),
+        precio: _precio,
         unidad: _unidad,
         fechaEntrega: _entrega,
       );
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const OfertasRecibidasScreen()),
+        MaterialPageRoute(
+          builder: (_) => OfertaEnviadaScreen(
+              necesidad: widget.necesidad, oferta: oferta),
+        ),
       );
-    } catch (e) {
+    } on ReglaNegocioException catch (e) {
+      if (mounted) setState(() => _error = e.mensaje);
+    } catch (_) {
       if (mounted) {
-        setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
+        setState(() => _error = 'Algo salió mal. Inténtalo de nuevo.');
       }
     } finally {
       if (mounted) setState(() => _cargando = false);
@@ -191,6 +232,18 @@ class _DefinirOfertaScreenState extends State<DefinirOfertaScreen> {
                 ),
               ),
               const SizedBox(height: 20),
+              // Punto de entrega: solo lectura (SRS, P11).
+              TextFormField(
+                key: ValueKey(_puntoCentral),
+                initialValue: _puntoCentral,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  labelText: 'Punto de entrega',
+                  helperText: 'Lo define la organización; no se puede cambiar.',
+                  prefixIcon: Icon(Icons.place_outlined),
+                ),
+              ),
+              const SizedBox(height: 20),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(18),
@@ -198,18 +251,28 @@ class _DefinirOfertaScreenState extends State<DefinirOfertaScreen> {
                   color: BColors.laguna50,
                   borderRadius: BorderRadius.circular(BRadios.tarjeta),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('TOTAL CALCULADO'),
-                    Text(
-                      '\$${_total.toStringAsFixed(0)}',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: BColors.laguna700,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Total calculado'),
+                        Text(
+                          Formato.dinero(_total),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: BColors.laguna700,
+                          ),
+                        ),
+                      ],
                     ),
+                    if (_detalleTotal.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(_detalleTotal,
+                          style: const TextStyle(color: BColors.tinta2, fontSize: 13)),
+                    ],
                   ],
                 ),
               ),

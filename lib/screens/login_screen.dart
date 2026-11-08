@@ -34,9 +34,9 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
 
       if (Servicios.i.sesion.tieneOrganizaciones) {
-        Nav.ir(context, const InicioScreen());
+        Nav.reiniciarEn(context, const InicioScreen());
       } else {
-        Nav.ir(context, const SinOrganizacionScreen());
+        Nav.reiniciarEn(context, const SinOrganizacionScreen());
       }
     } catch (e) {
       if (!mounted) return;

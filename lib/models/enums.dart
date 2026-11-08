@@ -13,6 +13,9 @@ enum TipoOrganizacion {
 
   /// Cómo se llama el "identificador interno" para este tipo (SRS 1.3).
   final String nombreIdentificador;
+
+  /// Etiqueta del campo del identificador interno según el tipo (SRS 11, P05).
+  String get etiquetaIdentificador => nombreIdentificador;
 }
 
 /// Rol de la membresía: solo quien creó la organización es administrador.
@@ -95,6 +98,9 @@ enum TipoReporte {
 
   const TipoReporte(this.etiqueta);
   final String etiqueta;
+
+  /// Alias compatible con la nomenclatura del SRS (inasistencia).
+  static const TipoReporte inasistencia = TipoReporte.noAsistio;
 }
 
 /// Estado de un reporte.

@@ -98,6 +98,9 @@ class OrganizacionService {
 
   Future<Organizacion?> porId(int id) => _repo.organizacionPorId(id);
 
+  /// Usuario por su id (nombre del solicitante, del prestador, etc.).
+  Future<Usuario?> usuario(int id) => _repo.usuarioPorId(id);
+
   /// Membresías del usuario. Aprovecha para levantar suspensiones vencidas.
   Future<List<Membresia>> membresiasDe(int usuarioId) async {
     final lista = await _repo.membresiasDeUsuario(usuarioId);

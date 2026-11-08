@@ -31,6 +31,8 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+build/
+**/build/
 /coverage/
 
 # Symbolication related
@@ -46,3 +48,25 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Backend, variables de entorno y bases de datos locales
+.env
+*.env
+backend/.env
+*.db
+*.sqlite
+*.sqlite3
+backend/*.db
+ca.pem
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Documentación del proyecto excluida del repositorio
+DOCUMENTACION_PROYECTO.*
+*DOCUMENTACION*
+*documentacion*
+
+

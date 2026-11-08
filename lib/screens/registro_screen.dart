@@ -19,6 +19,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
   final _passCtrl = TextEditingController();
 
   bool _cargando = false;
+  bool _ocultarContrasena = true;
   String? _error;
 
   Future<void> _registrar() async {
@@ -121,7 +122,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
               const SizedBox(height: 16),
               TextField(
                 controller: _passCtrl,
-                obscureText: true,
+                obscureText: _ocultarContrasena,
                 decoration: InputDecoration(
                   labelText: 'CONTRASEÑA',
                   filled: true,
@@ -130,12 +131,24 @@ class _RegistroScreenState extends State<RegistroScreen> {
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
-                  suffixIcon: const Icon(
-                    Icons.visibility_off,
-                    color: BColors.tinta3,
+                  suffixIcon: IconButton(
+                    tooltip: _ocultarContrasena
+                        ? 'Mostrar contraseña'
+                        : 'Ocultar contraseña',
+                    icon: Icon(
+                      _ocultarContrasena
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: BColors.tinta3,
+                    ),
+                    onPressed: () => setState(
+                        () => _ocultarContrasena = !_ocultarContrasena),
                   ),
                 ),
               ),
+              const SizedBox(height: 6),
+              const Text('Mínimo 8 caracteres',
+                  style: TextStyle(fontSize: 12, color: BColors.tinta3)),
               const Spacer(),
               // Botón primario fijo abajo
               SizedBox(

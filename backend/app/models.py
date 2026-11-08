@@ -26,6 +26,10 @@ class Rol(str, enum.Enum):
     MIEMBRO = "MIEMBRO"
 
 
+RolMembresia = Rol
+
+
+
 class EstadoMembresia(str, enum.Enum):
     ACTIVO = "ACTIVO"
     ADVERTIDO = "ADVERTIDO"
@@ -68,6 +72,19 @@ class TipoReporte(str, enum.Enum):
     NO_DEVUELTO = "NO_DEVUELTO"
     DANADO = "DANADO"
     NO_ASISTIO = "NO_ASISTIO"
+    INASISTENCIA = "NO_ASISTIO"
+
+    @classmethod
+    def _missing_(cls, value):
+        if isinstance(value, str):
+            v = value.strip().upper()
+            if v in ("INASISTENCIA", "NO_ASISTIO"):
+                return cls.NO_ASISTIO
+            if v in ("DANADO", "DAÑADO"):
+                return cls.DANADO
+            if v == "NO_DEVUELTO":
+                return cls.NO_DEVUELTO
+        return None
 
 
 class EstadoReporte(str, enum.Enum):
@@ -79,6 +96,23 @@ class Sancion(str, enum.Enum):
     ADVERTENCIA = "ADVERTENCIA"
     SUSPENSION = "SUSPENSION"
     BANEO = "BANEO"
+    SUSPENSION_TEMPORAL = "SUSPENSION"
+    BANEO_PERMANENTE = "BANEO"
+
+    @classmethod
+    def _missing_(cls, value):
+        if isinstance(value, str):
+            v = value.strip().upper()
+            if v in ("SUSPENSION_TEMPORAL", "SUSPENSION"):
+                return cls.SUSPENSION
+            if v in ("BANEO_PERMANENTE", "BANEO"):
+                return cls.BANEO
+            if v == "ADVERTENCIA":
+                return cls.ADVERTENCIA
+        return None
+
+
+TipoSancion = Sancion
 
 
 def _enum(clase):
@@ -128,10 +162,27 @@ class Membresia(Base):
     rol: Mapped[Rol] = mapped_column(_enum(Rol))
     estado: Mapped[EstadoMembresia] = mapped_column(_enum(EstadoMembresia), default=EstadoMembresia.ACTIVO)
     identificador_interno: Mapped[str] = mapped_column(String(60))
+    sancion_motivo: Mapped[str | None] = mapped_column(Text, nullable=True)
     sancion_hasta: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     usuario: Mapped[Usuario] = relationship()
     organizacion: Mapped[Organizacion] = relationship()
+
+    @property
+    def motivo_sancion(self) -> str | None:
+        return self.sancion_motivo
+
+    @motivo_sancion.setter
+    def motivo_sancion(self, valor: str | None) -> None:
+        self.sancion_motivo = valor
+
+    @property
+    def fecha_fin_suspension(self) -> datetime | None:
+        return self.sancion_hasta
+
+    @fecha_fin_suspension.setter
+    def fecha_fin_suspension(self, valor: datetime | None) -> None:
+        self.sancion_hasta = valor
 
 
 class Necesidad(Base):
@@ -223,3 +274,11 @@ class Reporte(Base):
     reportante: Mapped[Usuario] = relationship(foreign_keys=[reportante_id])
     reportado: Mapped[Usuario] = relationship(foreign_keys=[reportado_id])
     prestamo: Mapped[Prestamo] = relationship()
+
+    @property
+    def admin_resolutor_id(self) -> int | None:
+        return self.admin_id
+
+    @admin_resolutor_id.setter
+    def admin_resolutor_id(self, valor: int | None) -> None:
+        self.admin_id = valor

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/servicios.dart';
 import '../theme/app_theme.dart';
+import '../widgets/codigo_organizacion.dart';
 import 'unirme_paso_2_screen.dart';
 
 // P04: Unirme paso 1
@@ -18,6 +19,7 @@ class _UnirmePaso1ScreenState extends State<UnirmePaso1Screen> {
   bool _cargando = false;
 
   Future<void> _siguiente() async {
+    if (_cargando) return;
     setState(() => _error = null);
     if (_codigoCtrl.text.trim().length != 5) {
       setState(() => _error = 'Escribe un código de 5 caracteres.');
@@ -63,25 +65,12 @@ class _UnirmePaso1ScreenState extends State<UnirmePaso1Screen> {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 24),
-              // Un único campo mantiene el código accesible y se presenta como casillas.
-              TextField(
+              // Cinco casillas en mayúsculas; al completar el quinto carácter
+              // se busca la organización automáticamente.
+              CodigoOrganizacion.captura(
                 controller: _codigoCtrl,
-                textAlign: TextAlign.center,
-                maxLength: 5,
-                textCapitalization: TextCapitalization.characters,
-                style: const TextStyle(fontSize: 32, letterSpacing: 16, fontWeight: FontWeight.bold),
-                decoration: InputDecoration(
-                  counterText: '',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                onChanged: (val) {
-                  if (val.length == 5) _siguiente();
-                },
+                error: _error != null,
+                onCompleto: (_) => _siguiente(),
               ),
               const SizedBox(height: 16),
               if (_error != null)
