@@ -57,6 +57,7 @@ class SesionController extends ChangeNotifier {
   }
 
   void cerrarSesion() {
+    _auth.cerrarSesion();
     _usuario = null;
     _membresias = [];
     _organizaciones.clear();

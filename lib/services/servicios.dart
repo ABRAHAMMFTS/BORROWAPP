@@ -1,3 +1,6 @@
+import 'package:flutter/widgets.dart';
+
+import '../data/api_repository.dart';
 import '../data/borrow_repository.dart';
 import '../data/memory_repository.dart';
 import 'auth_service.dart';
@@ -8,8 +11,9 @@ import 'sesion_controller.dart';
 
 /// Punto único donde se arman todas las capas (repositorio -> servicios -> sesión).
 ///
-/// Las pantallas piden lo que necesitan con `Servicios.i`. Para conectar el
-/// backend real basta cambiar el repositorio en [Servicios.iniciar].
+/// Las pantallas piden lo que necesitan con `Servicios.i`. Por defecto usa
+/// [ApiRepository] (conectado a FastAPI y PostgreSQL) y permite inyectar
+/// [MemoryRepository] para pruebas unitarias y de widgets.
 class Servicios {
   Servicios._(this.repo)
       : auth = AuthService(repo),
@@ -26,10 +30,30 @@ class Servicios {
   late final PrestamoService prestamos;
   late final SesionController sesion;
 
-  static late Servicios i;
+  static Servicios? _instancia;
+
+  static Servicios get i => _instancia ??= Servicios._(
+        _esEntornoTest() ? MemoryRepository() : ApiRepository(),
+      );
+
+  static set i(Servicios valor) => _instancia = valor;
+
+  static bool _esEntornoTest() {
+    try {
+      final tipo = WidgetsBinding.instance.runtimeType.toString();
+      return tipo.contains('TestWidgetsFlutterBinding') ||
+          tipo.contains('AutomatedTestWidgetsFlutterBinding');
+    } catch (_) {
+      return false;
+    }
+  }
 
   /// Se llama una vez al arrancar la app (main.dart).
+  /// Usa [ApiRepository] por defecto en ejecución real y mantiene compatibilidad
+  /// con [MemoryRepository] en los tests de Flutter.
   static void iniciar([BorrowRepository? repositorio]) {
-    i = Servicios._(repositorio ?? MemoryRepository());
+    _instancia = Servicios._(
+      repositorio ?? (_esEntornoTest() ? MemoryRepository() : ApiRepository()),
+    );
   }
 }

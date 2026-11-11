@@ -1,4 +1,5 @@
 import 'dart:math';
+import '../data/api_repository.dart';
 import '../data/borrow_repository.dart';
 import '../models/enums.dart';
 import '../models/usuario.dart';
@@ -37,6 +38,16 @@ class OrganizacionService {
         Validadores.requerido(identificadorInterno,
             campo: tipo.nombreIdentificador);
     if (error != null) throw ReglaNegocioException(error);
+
+    final repo = _repo;
+    if (repo is ApiRepository) {
+      return repo.crearOrganizacionRemota(
+        nombre: nombre,
+        tipo: tipo,
+        puntoCentral: puntoCentral,
+        identificadorInterno: identificadorInterno,
+      );
+    }
 
     final org = Organizacion(
       id: _repo.siguienteId(),
@@ -79,6 +90,14 @@ class OrganizacionService {
     final error = Validadores.requerido(identificadorInterno,
         campo: organizacion.tipo.nombreIdentificador);
     if (error != null) throw ReglaNegocioException(error);
+
+    final repo = _repo;
+    if (repo is ApiRepository) {
+      return repo.unirseAOrganizacionRemota(
+        organizacionId: organizacion.id,
+        identificadorInterno: identificadorInterno,
+      );
+    }
 
     // Regla de integridad: no puede haber dos membresías en la misma organización.
     if (await _repo.membresia(usuarioId, organizacion.id) != null) {
@@ -148,10 +167,19 @@ class OrganizacionService {
     required int organizacionId,
     required String nuevoPunto,
   }) async {
-    await exigirAdmin(adminId, organizacionId);
     final error =
         Validadores.requerido(nuevoPunto, campo: 'El punto central', min: 3);
     if (error != null) throw ReglaNegocioException(error);
+
+    final repo = _repo;
+    if (repo is ApiRepository) {
+      return repo.cambiarPuntoCentralRemoto(
+        organizacionId: organizacionId,
+        nuevoPunto: nuevoPunto,
+      );
+    }
+
+    await exigirAdmin(adminId, organizacionId);
     final org = (await _repo.organizacionPorId(organizacionId))!;
     final nueva = org.copyWith(puntoCentral: nuevoPunto.trim());
     await _repo.guardarOrganizacion(nueva);

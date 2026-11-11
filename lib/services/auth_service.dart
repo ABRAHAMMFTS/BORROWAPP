@@ -1,3 +1,4 @@
+import '../data/api_repository.dart';
 import '../data/borrow_repository.dart';
 import '../models/usuario.dart';
 import '../utils/hash_util.dart';
@@ -20,6 +21,15 @@ class AuthService {
         Validadores.contrasena(contrasena);
     if (error != null) throw ReglaNegocioException(error);
 
+    final repo = _repo;
+    if (repo is ApiRepository) {
+      return repo.registrarRemoto(
+        nombre: nombre,
+        correo: correo,
+        contrasena: contrasena,
+      );
+    }
+
     // Regla de integridad: el correo es único en todo el sistema.
     if (await _repo.usuarioPorCorreo(correo.trim()) != null) {
       throw const ReglaNegocioException(
@@ -38,6 +48,14 @@ class AuthService {
 
   /// RF-002: autentica con correo y contraseña.
   Future<Usuario> iniciarSesion(String correo, String contrasena) async {
+    final repo = _repo;
+    if (repo is ApiRepository) {
+      return repo.iniciarSesionRemoto(
+        correo: correo,
+        contrasena: contrasena,
+      );
+    }
+
     final usuario = await _repo.usuarioPorCorreo(correo.trim());
     final ok = usuario != null &&
         usuario.contrasenaHash == HashUtil.hashContrasena(contrasena);
@@ -47,5 +65,13 @@ class AuthService {
           'Correo o contraseña incorrectos. Revisa los datos e inténtalo de nuevo.');
     }
     return usuario;
+  }
+
+  /// Limpia el token JWT si se está usando ApiRepository.
+  void cerrarSesion() {
+    final repo = _repo;
+    if (repo is ApiRepository) {
+      repo.limpiarSesion();
+    }
   }
 }

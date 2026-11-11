@@ -1,3 +1,4 @@
+import '../data/api_repository.dart';
 import '../data/borrow_repository.dart';
 import '../models/enums.dart';
 import '../models/operaciones.dart';
@@ -59,6 +60,11 @@ class PrestamoService {
     int? prestadorId,
     int? usuarioId,
   }) async {
+    final repo = _repo;
+    if (repo is ApiRepository) {
+      return repo.marcarEntregadoRemoto(prestamoId);
+    }
+
     final uid = prestadorId ?? usuarioId!;
     final p = await _prestamoOError(prestamoId);
     _exigirParte(p.prestadorId, uid, 'el prestador');
@@ -77,6 +83,11 @@ class PrestamoService {
     int? solicitanteId,
     int? usuarioId,
   }) async {
+    final repo = _repo;
+    if (repo is ApiRepository) {
+      return repo.confirmarRecibidoRemoto(prestamoId);
+    }
+
     final uid = solicitanteId ?? usuarioId!;
     final p = await _prestamoOError(prestamoId);
     _exigirParte(p.solicitanteId, uid, 'el solicitante');
@@ -98,6 +109,11 @@ class PrestamoService {
     int? solicitanteId,
     int? usuarioId,
   }) async {
+    final repo = _repo;
+    if (repo is ApiRepository) {
+      return repo.marcarDevueltoRemoto(prestamoId);
+    }
+
     final uid = solicitanteId ?? usuarioId!;
     final p = await _prestamoOError(prestamoId);
     _exigirParte(p.solicitanteId, uid, 'el solicitante');
@@ -116,6 +132,11 @@ class PrestamoService {
     int? prestadorId,
     int? usuarioId,
   }) async {
+    final repo = _repo;
+    if (repo is ApiRepository) {
+      return repo.confirmarDevolucionRemota(prestamoId);
+    }
+
     final uid = prestadorId ?? usuarioId!;
     final p = await _prestamoOError(prestamoId);
     _exigirParte(p.prestadorId, uid, 'el prestador');
@@ -142,6 +163,19 @@ class PrestamoService {
     required TipoReporte tipo,
     required String descripcion,
   }) async {
+    final error =
+        Validadores.requerido(descripcion, campo: 'La descripción', min: 10);
+    if (error != null) throw ReglaNegocioException(error);
+
+    final repo = _repo;
+    if (repo is ApiRepository) {
+      return repo.reportarProblemaRemoto(
+        prestamoId: prestamoId,
+        tipo: tipo,
+        descripcion: descripcion,
+      );
+    }
+
     final p = await _prestamoOError(prestamoId);
     final esParte =
         p.solicitanteId == reportanteId || p.prestadorId == reportanteId;
@@ -157,9 +191,6 @@ class PrestamoService {
       throw const ReglaNegocioException(
           'Este préstamo ya tiene un reporte pendiente. El administrador lo está revisando.');
     }
-    final error =
-        Validadores.requerido(descripcion, campo: 'La descripción', min: 10);
-    if (error != null) throw ReglaNegocioException(error);
 
     final reportado =
         p.solicitanteId == reportanteId ? p.prestadorId : p.solicitanteId;
@@ -197,6 +228,11 @@ class PrestamoService {
   /// Motivo de la sanción vigente de un usuario en una organización: la nota
   /// del último reporte resuelto en su contra. Null si no hay ninguno.
   Future<String?> motivoSancion(int usuarioId, int organizacionId) async {
+    final repo = _repo;
+    if (repo is ApiRepository) {
+      return repo.motivoSancionRemoto(usuarioId, organizacionId);
+    }
+
     final lista = (await _repo.reportesDeOrganizacion(organizacionId))
         .where((r) =>
             r.reportadoId == usuarioId &&
@@ -218,13 +254,6 @@ class PrestamoService {
     required String nota,
     DateTime? suspensionHasta,
   }) async {
-    final r = await _repo.reportePorId(reporteId);
-    if (r == null) throw const ReglaNegocioException('Ese reporte ya no existe.');
-    await _orgs.exigirAdmin(adminId, r.organizacionId);
-    if (r.estado == EstadoReporte.resuelto) {
-      throw const ReglaNegocioException('Este reporte ya fue resuelto.');
-    }
-    // Integridad 4.3: un reporte resuelto siempre lleva una nota.
     final error =
         Validadores.requerido(nota, campo: 'La nota de resolución', min: 5);
     if (error != null) throw ReglaNegocioException(error);
@@ -232,6 +261,23 @@ class PrestamoService {
         (suspensionHasta == null || suspensionHasta.isBefore(DateTime.now()))) {
       throw const ReglaNegocioException(
           'Elige una fecha de fin de suspensión posterior a hoy.');
+    }
+
+    final repo = _repo;
+    if (repo is ApiRepository) {
+      return repo.resolverReporteRemoto(
+        reporteId: reporteId,
+        sancion: sancion,
+        nota: nota,
+        suspensionHasta: suspensionHasta,
+      );
+    }
+
+    final r = await _repo.reportePorId(reporteId);
+    if (r == null) throw const ReglaNegocioException('Ese reporte ya no existe.');
+    await _orgs.exigirAdmin(adminId, r.organizacionId);
+    if (r.estado == EstadoReporte.resuelto) {
+      throw const ReglaNegocioException('Este reporte ya fue resuelto.');
     }
 
     final m = await _orgs.membresia(r.reportadoId, r.organizacionId);
@@ -261,6 +307,15 @@ class PrestamoService {
     required int usuarioId,
     required int organizacionId,
   }) async {
+    final repo = _repo;
+    if (repo is ApiRepository) {
+      await repo.revertirSancionRemota(
+        organizacionId: organizacionId,
+        usuarioId: usuarioId,
+      );
+      return;
+    }
+
     await _orgs.exigirAdmin(adminId, organizacionId);
     final m = await _orgs.membresia(usuarioId, organizacionId);
     if (m == null) {

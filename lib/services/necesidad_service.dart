@@ -1,3 +1,4 @@
+import '../data/api_repository.dart';
 import '../data/borrow_repository.dart';
 import '../models/enums.dart';
 import '../models/operaciones.dart';
@@ -58,8 +59,6 @@ class NecesidadService {
     required DateTime fechaInicio,
     required DateTime fechaFin,
   }) async {
-    await _exigirPuedeActuar(solicitanteId, organizacionId);
-
     final error = Validadores.requerido(objeto, campo: 'El objeto', min: 3) ??
         Validadores.requerido(descripcion, campo: 'La descripción', min: 5);
     if (error != null) throw ReglaNegocioException(error);
@@ -74,6 +73,19 @@ class NecesidadService {
       throw const ReglaNegocioException(
           'La fecha de fin debe ser igual o posterior a la de inicio.');
     }
+
+    final repo = _repo;
+    if (repo is ApiRepository) {
+      return repo.publicarNecesidadRemota(
+        organizacionId: organizacionId,
+        objeto: objeto,
+        descripcion: descripcion,
+        fechaInicio: fechaInicio,
+        fechaFin: fechaFin,
+      );
+    }
+
+    await _exigirPuedeActuar(solicitanteId, organizacionId);
 
     final n = Necesidad(
       id: _repo.siguienteId(),
@@ -92,6 +104,12 @@ class NecesidadService {
   /// RF-020: cancela la necesidad si sigue buscando prestador. Las ofertas
   /// pendientes pasan a CERRADA.
   Future<void> cancelar({required int usuarioId, required int necesidadId}) async {
+    final repo = _repo;
+    if (repo is ApiRepository) {
+      await repo.cancelarNecesidadRemota(necesidadId);
+      return;
+    }
+
     final n = await _necesidadOError(necesidadId);
     if (n.solicitanteId != usuarioId) {
       throw const ReglaNegocioException(
@@ -148,6 +166,28 @@ class NecesidadService {
     UnidadCobro? unidad,
     required DateTime fechaEntrega,
   }) async {
+    if (modalidad == Modalidad.alquiler) {
+      if (precio == null || precio <= 0) {
+        throw const ReglaNegocioException(
+            'Para un alquiler escribe un precio mayor que cero.');
+      }
+      if (unidad == null) {
+        throw const ReglaNegocioException(
+            'Elige si cobras por hora o por día.');
+      }
+    }
+
+    final repo = _repo;
+    if (repo is ApiRepository) {
+      return repo.crearOfertaRemota(
+        necesidadId: necesidadId,
+        modalidad: modalidad,
+        precio: precio,
+        unidad: unidad,
+        fechaEntrega: fechaEntrega,
+      );
+    }
+
     final n = await _necesidadOError(necesidadId);
     await _exigirPuedeActuar(prestadorId, n.organizacionId);
 
@@ -163,16 +203,6 @@ class NecesidadService {
     if (await ofertaPendienteDe(necesidadId, prestadorId) != null) {
       throw const ReglaNegocioException(
           'Ya enviaste una oferta para esta necesidad. Espera la respuesta del solicitante.');
-    }
-    if (modalidad == Modalidad.alquiler) {
-      if (precio == null || precio <= 0) {
-        throw const ReglaNegocioException(
-            'Para un alquiler escribe un precio mayor que cero.');
-      }
-      if (unidad == null) {
-        throw const ReglaNegocioException(
-            'Elige si cobras por hora o por día.');
-      }
     }
     if (fechaEntrega.isBefore(DateTime.now())) {
       throw const ReglaNegocioException(
@@ -198,6 +228,12 @@ class NecesidadService {
     required int solicitanteId,
     required int ofertaId,
   }) async {
+    final repo = _repo;
+    if (repo is ApiRepository) {
+      await repo.rechazarOfertaRemota(ofertaId);
+      return;
+    }
+
     final o = await _ofertaOError(ofertaId);
     final n = await _necesidadOError(o.necesidadId);
     _exigirSolicitante(n, solicitanteId);
@@ -212,13 +248,15 @@ class NecesidadService {
   ///  2) las demás pendientes pasan a CERRADA,
   ///  3) la necesidad pasa a CON_PRESTAMO_CONFIRMADO,
   ///  4) se crea el préstamo en estado CONFIRMADO.
-  /// Primero se validan todas las condiciones y solo después se guarda, para
-  /// que "o pasa todo o no pasa nada". En el backend real esto irá dentro de
-  /// una transacción de PostgreSQL.
   Future<Prestamo> aceptarOferta({
     required int solicitanteId,
     required int ofertaId,
   }) async {
+    final repo = _repo;
+    if (repo is ApiRepository) {
+      return repo.aceptarOfertaRemota(ofertaId);
+    }
+
     final o = await _ofertaOError(ofertaId);
     final n = await _necesidadOError(o.necesidadId);
     _exigirSolicitante(n, solicitanteId);
@@ -233,7 +271,6 @@ class NecesidadService {
     }
     final org = (await _orgs.porId(n.organizacionId))!;
 
-    // --- Todo validado: ahora sí se guardan los cambios juntos ---
     final prestamo = Prestamo(
       id: _repo.siguienteId(),
       ofertaId: o.id,
@@ -250,7 +287,7 @@ class NecesidadService {
           modalidad: o.modalidad,
           precio: o.precio,
           unidad: o.unidadCobro),
-      puntoCentral: org.puntoCentral, // copia que no cambia después
+      puntoCentral: org.puntoCentral,
       estado: EstadoPrestamo.confirmado,
     );
 
